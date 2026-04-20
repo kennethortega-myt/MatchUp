@@ -1,7 +1,7 @@
 import axios from 'axios'
 import type { WomanProfile, ManProfile, Photo, Subscription, WomanCard, MatchRequest, PendingRequest, FullProfile, GiftSummary, GiftSentSummary, BalanceOut, WithdrawalAdminOut } from './types'
 
-const api = axios.create({ baseURL: (import.meta.env.VITE_API_URL as string) || '/api' })
+const api = axios.create({ baseURL: '/api' })
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
