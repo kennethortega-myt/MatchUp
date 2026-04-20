@@ -14,6 +14,8 @@ class User(Base):
     is_active          = Column(SmallInteger, default=1)
     is_verified        = Column(SmallInteger, default=1, server_default='1')
     verification_token = Column(String(64), nullable=True)
+    reset_token        = Column(String(64), nullable=True)
+    reset_token_expires= Column(DateTime, nullable=True)
     created_at         = Column(DateTime, default=datetime.utcnow)
     updated_at         = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

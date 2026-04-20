@@ -69,8 +69,10 @@ export const login = (email: string, password: string) => {
   return api.post('/auth/login', form, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
 }
 
-export const refreshToken = () => api.post('/auth/refresh')
-export const logoutApi    = () => api.post('/auth/logout')
+export const refreshToken      = () => api.post('/auth/refresh')
+export const logoutApi         = () => api.post('/auth/logout')
+export const forgotPassword    = (email: string) => api.post('/auth/forgot-password', { email })
+export const resetPassword     = (token: string, password: string) => api.post('/auth/reset-password', { token, password })
 
 export const getMe = () => api.get('/auth/me')
 

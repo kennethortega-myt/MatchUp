@@ -21,6 +21,8 @@ import ManSentRequestsPage from './pages/man/ManSentRequestsPage'
 import Navbar from './components/Navbar'
 import VerifyEmailSentPage from './pages/VerifyEmailSentPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 function ProtectedRoute({ children, role }: { children: JSX.Element; role?: 'man' | 'woman' }) {
   const { token, user } = useAuth()
@@ -80,9 +82,11 @@ export default function App() {
           element={<ProtectedRoute role="woman"><GiftsPage /></ProtectedRoute>}
         />
 
-        {/* Email verification */}
+        {/* Email verification & password reset */}
         <Route path="/verify-email-sent" element={<VerifyEmailSentPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         {/* Admin */}
         <Route path="/admin" element={<AdminDashboard />} />

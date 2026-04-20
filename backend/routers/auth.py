@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks, Response, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from pydantic import BaseModel, EmailStr
 from typing import Optional
+from datetime import datetime, timedelta
 import json
 
 from backend.database import get_db
@@ -12,7 +14,7 @@ from backend.auth import (
     decode_refresh_token, get_current_user,
 )
 from backend.limiter import limiter
-from backend.email_service import send_verification_email, generate_token, REQUIRE_VERIFICATION
+from backend.email_service import send_verification_email, send_reset_email, generate_token, REQUIRE_VERIFICATION
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -152,6 +154,56 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     user.verification_token = None
     db.commit()
     return {"message": "¡Cuenta verificada! Ya puedes iniciar sesión."}
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    password: str
+
+
+@router.post("/forgot-password")
+@limiter.limit("3/minute")
+async def forgot_password(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    body: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    user = db.query(User).filter(User.email == body.email).first()
+    if user:
+        from backend.schemas import RegisterRequest
+        import re
+        token = generate_token()
+        user.reset_token = token
+        user.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
+        db.commit()
+        background_tasks.add_task(send_reset_email, body.email, token)
+    return {"message": "Si el email existe, recibirás un enlace para restablecer tu contraseña"}
+
+
+@router.post("/reset-password")
+def reset_password(
+    body: ResetPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    import re
+    pw = body.password
+    if (len(pw) < 8 or not re.search(r"[A-Z]", pw) or not re.search(r"[a-z]", pw)
+            or not re.search(r"\d", pw) or not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-]", pw)):
+        raise HTTPException(status_code=422, detail="La contraseña no cumple los requisitos de seguridad")
+
+    user = db.query(User).filter(User.reset_token == body.token).first()
+    if not user or not user.reset_token_expires or user.reset_token_expires < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="Token inválido o expirado")
+
+    user.hashed_password = hash_password(body.password)
+    user.reset_token = None
+    user.reset_token_expires = None
+    db.commit()
+    return {"message": "Contraseña actualizada correctamente. Ya puedes iniciar sesión."}
 
 
 @router.post("/resend-verification")
