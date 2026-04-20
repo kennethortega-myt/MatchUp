@@ -8,6 +8,7 @@ from backend.database import get_db
 from backend.models import User, MatchRequest, GiftTransaction, WithdrawalRequest
 from backend.utils.dependencies import require_woman
 from backend.constants import GIFT_CATALOG, WOMAN_SHARE
+from backend.crypto import encrypt, decrypt
 
 router = APIRouter(prefix="/withdrawals", tags=["withdrawals"])
 
@@ -79,7 +80,7 @@ def get_balance(
         withdrawals=[
             WithdrawalOut(
                 id=w.id, amount=float(w.amount),
-                method=w.method, account_info=w.account_info,
+                method=w.method, account_info=decrypt(w.account_info),
                 status=w.status, admin_notes=w.admin_notes,
                 created_at=w.created_at,
             )
@@ -114,7 +115,7 @@ def request_withdrawal(
         woman_id     = current_user.id,
         amount       = body.amount,
         method       = body.method,
-        account_info = body.account_info.strip(),
+        account_info = encrypt(body.account_info.strip()),
         status       = "pending",
     )
     db.add(wr)

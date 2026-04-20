@@ -6,7 +6,8 @@ from pathlib import Path
 from PIL import Image
 
 STORAGE_BACKEND = os.getenv("STORAGE_BACKEND", "local")
-UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", "uploads"))
+UPLOAD_DIR      = Path(os.getenv("UPLOAD_DIR", "uploads"))
+MAX_FILE_BYTES  = int(os.getenv("MAX_UPLOAD_SIZE_MB", "5")) * 1024 * 1024
 
 R2_ACCOUNT_ID        = os.getenv("R2_ACCOUNT_ID", "")
 R2_ACCESS_KEY_ID     = os.getenv("R2_ACCESS_KEY_ID", "")
@@ -35,7 +36,9 @@ def _process(content: bytes) -> bytes:
 
 
 def upload_photo(content: bytes, user_id: int) -> tuple[str, str]:
-    """Returns (file_key, public_url). Raises on invalid image."""
+    """Returns (file_key, public_url). Raises ValueError on size/image error."""
+    if len(content) > MAX_FILE_BYTES:
+        raise ValueError(f"El archivo supera el límite de {MAX_FILE_BYTES // (1024*1024)}MB")
     jpeg = _process(content)
     key = f"{user_id}/{uuid.uuid4().hex}.jpg"
 

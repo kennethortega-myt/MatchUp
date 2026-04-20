@@ -71,8 +71,10 @@ async def upload_photo(
     content = await file.read()
     try:
         key, _ = storage.upload_photo(content, current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception:
-        raise HTTPException(status_code=400, detail="Invalid image file")
+        raise HTTPException(status_code=400, detail="Archivo de imagen inválido")
 
     is_primary = 1 if count == 0 else 0
     photo = Photo(

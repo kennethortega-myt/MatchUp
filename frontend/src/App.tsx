@@ -19,6 +19,8 @@ import ManProfilePage from './pages/man/ManProfilePage'
 import ManPhotosPage from './pages/man/ManPhotosPage'
 import ManSentRequestsPage from './pages/man/ManSentRequestsPage'
 import Navbar from './components/Navbar'
+import VerifyEmailSentPage from './pages/VerifyEmailSentPage'
+import VerifyEmailPage from './pages/VerifyEmailPage'
 
 function ProtectedRoute({ children, role }: { children: JSX.Element; role?: 'man' | 'woman' }) {
   const { token, user } = useAuth()
@@ -28,7 +30,15 @@ function ProtectedRoute({ children, role }: { children: JSX.Element; role?: 'man
 }
 
 export default function App() {
-  const { token, user } = useAuth()
+  const { token, user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-pink-50">
+        <div className="text-4xl animate-pulse">💘</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen">
@@ -69,6 +79,10 @@ export default function App() {
           path="/woman/gifts"
           element={<ProtectedRoute role="woman"><GiftsPage /></ProtectedRoute>}
         />
+
+        {/* Email verification */}
+        <Route path="/verify-email-sent" element={<VerifyEmailSentPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
 
         {/* Admin */}
         <Route path="/admin" element={<AdminDashboard />} />

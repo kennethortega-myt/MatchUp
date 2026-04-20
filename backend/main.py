@@ -3,19 +3,39 @@ load_dotenv()
 
 import os
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from backend.database import engine, Base
 from backend.routers import auth, women, subscriptions, browse, matches
 from backend.routers import gifts, admin as admin_router, men, withdrawals
 from backend import storage
+from backend.limiter import limiter
 
 # Create all DB tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="MatchUp API", version="1.0.0")
+
+# Rate limiter
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Security headers
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"]  = "nosniff"
+    response.headers["X-Frame-Options"]         = "DENY"
+    response.headers["X-XSS-Protection"]        = "1; mode=block"
+    response.headers["Referrer-Policy"]         = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"]      = "camera=(), microphone=(), geolocation=()"
+    if request.url.scheme == "https":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
 
 _extra_origins = [o.strip() for o in os.getenv("FRONTEND_ORIGIN", "").split(",") if o.strip()]
 app.add_middleware(

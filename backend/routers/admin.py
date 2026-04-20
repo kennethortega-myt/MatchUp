@@ -6,17 +6,27 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
 from backend.database import get_db
-from backend.models import User, Subscription, MatchRequest, WomanProfile, WithdrawalRequest
+from backend.models import User, Subscription, MatchRequest, WomanProfile, WithdrawalRequest, AuditLog
 from backend.constants import GIFT_CATALOG, WOMAN_SHARE, ADMIN_SHARE, MONTHLY_PRICE, YEARLY_PRICE
+from backend.crypto import decrypt
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-ADMIN_SECRET = os.getenv("ADMIN_SECRET_KEY", "admin")
+ADMIN_SECRET     = os.getenv("ADMIN_SECRET_KEY", "admin")
+ADMIN_TOTP_SECRET = os.getenv("ADMIN_TOTP_SECRET", "")
 
 
-def verify_admin(x_admin_key: str = Header(...)):
+def verify_admin(
+    x_admin_key:  str = Header(...),
+    x_admin_totp: str = Header(None),
+):
     if x_admin_key != ADMIN_SECRET:
         raise HTTPException(status_code=403, detail="Forbidden")
+    if ADMIN_TOTP_SECRET:
+        import pyotp
+        totp = pyotp.TOTP(ADMIN_TOTP_SECRET)
+        if not x_admin_totp or not totp.verify(x_admin_totp, valid_window=1):
+            raise HTTPException(status_code=403, detail="Invalid TOTP code")
 
 
 # ── Response models ───────────────────────────────────────────────────────────
@@ -224,7 +234,7 @@ def list_withdrawals(status: str = "pending", db: Session = Depends(get_db)):
             woman_name=profile.first_name if profile else "Sin nombre",
             amount=float(w.amount),
             method=w.method,
-            account_info=w.account_info,
+            account_info=decrypt(w.account_info),
             status=w.status,
             admin_notes=w.admin_notes,
             created_at=w.created_at,

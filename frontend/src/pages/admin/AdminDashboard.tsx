@@ -62,6 +62,7 @@ interface Dashboard {
 
 export default function AdminDashboard() {
   const [key, setKey]         = useState('')
+  const [totp, setTotp]       = useState('')
   const [data, setData]       = useState<Dashboard | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
@@ -76,10 +77,10 @@ export default function AdminDashboard() {
     setLoading(true)
     setError('')
     try {
-      const res = await getAdminDashboard(key)
+      const res = await getAdminDashboard(key, totp || undefined)
       setData(res.data)
     } catch {
-      setError('Clave incorrecta o acceso denegado.')
+      setError('Clave incorrecta, TOTP inválido o acceso denegado.')
     } finally {
       setLoading(false)
     }
@@ -88,7 +89,7 @@ export default function AdminDashboard() {
   const refresh = async () => {
     setLoading(true)
     try {
-      const res = await getAdminDashboard(key)
+      const res = await getAdminDashboard(key, totp || undefined)
       setData(res.data)
     } finally {
       setLoading(false)
@@ -97,7 +98,7 @@ export default function AdminDashboard() {
 
   const loadWithdrawals = async (status: 'pending' | 'approved' | 'rejected') => {
     try {
-      const res = await getAdminWithdrawals(key, status)
+      const res = await getAdminWithdrawals(key, totp || undefined, status)
       setWithdrawals(res.data)
     } catch { /* ignore */ }
   }
@@ -109,7 +110,7 @@ export default function AdminDashboard() {
   const handleApprove = async (id: number) => {
     setActionLoading(id)
     try {
-      await approveWithdrawal(key, id, actionNotes[id])
+      await approveWithdrawal(key, totp || undefined, id, actionNotes[id])
       setWithdrawals(prev => prev.filter(w => w.id !== id))
       setData(prev => prev ? { ...prev, pending_withdrawals_count: prev.pending_withdrawals_count - 1 } : prev)
     } catch { /* ignore */ }
@@ -119,7 +120,7 @@ export default function AdminDashboard() {
   const handleReject = async (id: number) => {
     setActionLoading(id)
     try {
-      await rejectWithdrawal(key, id, actionNotes[id])
+      await rejectWithdrawal(key, totp || undefined, id, actionNotes[id])
       setWithdrawals(prev => prev.filter(w => w.id !== id))
       setData(prev => prev ? { ...prev, pending_withdrawals_count: prev.pending_withdrawals_count - 1 } : prev)
     } catch { /* ignore */ }
@@ -140,6 +141,15 @@ export default function AdminDashboard() {
               value={key}
               onChange={e => setKey(e.target.value)}
               placeholder="Clave de administrador"
+              className="w-full bg-gray-800 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
+            />
+            <input
+              type="text"
+              inputMode="numeric"
+              value={totp}
+              onChange={e => setTotp(e.target.value)}
+              placeholder="Código 2FA (dejar vacío si no está activo)"
+              maxLength={6}
               className="w-full bg-gray-800 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
             />
             <button type="submit" disabled={loading}

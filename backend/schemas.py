@@ -20,17 +20,27 @@ class RegisterRequest(BaseModel):
     @field_validator("password")
     @classmethod
     def validate_password(cls, v):
-        if len(v) < 6:
-            raise ValueError("password must be at least 6 characters")
+        import re
+        if len(v) < 8:
+            raise ValueError("La contraseña debe tener al menos 8 caracteres")
+        if not re.search(r"[A-Z]", v):
+            raise ValueError("La contraseña debe tener al menos una letra mayúscula")
+        if not re.search(r"[a-z]", v):
+            raise ValueError("La contraseña debe tener al menos una letra minúscula")
+        if not re.search(r"\d", v):
+            raise ValueError("La contraseña debe tener al menos un número")
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-]", v):
+            raise ValueError("La contraseña debe tener al menos un carácter especial (!@#$%...)")
         return v
 
 
 class LoginResponse(BaseModel):
-    access_token: str
+    access_token: str = ""
     token_type: str = "bearer"
-    user_id: int
-    role: str
-    email: str
+    requires_verification: bool = False
+    user_id: int = 0
+    role: str = ""
+    email: str = ""
 
 
 # ── Woman Profile ─────────────────────────────────────────────────────────────
@@ -48,6 +58,12 @@ class ProfileUpdate(BaseModel):
     phone:       Optional[str] = None
     instagram:   Optional[str] = None
     looking_for: Optional[str] = None
+
+    @field_validator("first_name", "bio", "occupation", "location", mode="before")
+    @classmethod
+    def sanitize_text(cls, v):
+        from backend.sanitize import clean_text
+        return clean_text(v) if v is not None else v
 
     @field_validator("looking_for")
     @classmethod
@@ -84,6 +100,12 @@ class ManProfileUpdate(BaseModel):
     country:    Optional[str] = None
     city:       Optional[str] = None
     occupation: Optional[str] = None
+
+    @field_validator("first_name", "bio", "occupation", mode="before")
+    @classmethod
+    def sanitize_text(cls, v):
+        from backend.sanitize import clean_text
+        return clean_text(v) if v is not None else v
 
 
 class ManProfileOut(BaseModel):
@@ -149,6 +171,12 @@ class MatchRequestCreate(BaseModel):
     message:      Optional[str] = None
     gift_type:    Optional[str] = None
     gift_message: Optional[str] = None
+
+    @field_validator("message", "gift_message", mode="before")
+    @classmethod
+    def sanitize_text(cls, v):
+        from backend.sanitize import clean_text
+        return clean_text(v) if v is not None else v
 
 
 class MatchRequestOut(BaseModel):

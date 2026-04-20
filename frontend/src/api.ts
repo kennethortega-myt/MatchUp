@@ -1,7 +1,7 @@
 import axios from 'axios'
 import type { WomanProfile, ManProfile, Photo, Subscription, WomanCard, MatchRequest, PendingRequest, FullProfile, GiftSummary, GiftSentSummary, BalanceOut, WithdrawalAdminOut } from './types'
 
-const api = axios.create({ baseURL: '/api' })
+const api = axios.create({ baseURL: '/api', withCredentials: true })
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
@@ -9,9 +9,58 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// Silent token refresh on 401
+let isRefreshing = false
+let failedQueue: { resolve: (t: string) => void; reject: (e: unknown) => void }[] = []
+
+const flushQueue = (err: unknown, token: string | null) => {
+  failedQueue.forEach(p => err ? p.reject(err) : p.resolve(token!))
+  failedQueue = []
+}
+
+api.interceptors.response.use(
+  r => r,
+  async error => {
+    const orig = error.config
+    if (error.response?.status === 401 && !orig._retry && orig.url !== '/auth/refresh') {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject })
+        }).then(token => {
+          orig.headers.Authorization = `Bearer ${token}`
+          return api(orig)
+        })
+      }
+      orig._retry = true
+      isRefreshing = true
+      try {
+        const res = await api.post('/auth/refresh')
+        const newToken: string = res.data.access_token
+        localStorage.setItem('token', newToken)
+        api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
+        flushQueue(null, newToken)
+        orig.headers.Authorization = `Bearer ${newToken}`
+        return api(orig)
+      } catch (refreshErr) {
+        flushQueue(refreshErr, null)
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        window.location.href = '/login'
+        return Promise.reject(refreshErr)
+      } finally {
+        isRefreshing = false
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
 // Auth
 export const register = (email: string, password: string, role: string) =>
   api.post('/auth/register', { email, password, role })
+
+export const verifyEmail = (token: string) =>
+  api.get(`/auth/verify/${token}`)
 
 export const login = (email: string, password: string) => {
   const form = new URLSearchParams()
@@ -19,6 +68,9 @@ export const login = (email: string, password: string) => {
   form.append('password', password)
   return api.post('/auth/login', form, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
 }
+
+export const refreshToken = () => api.post('/auth/refresh')
+export const logoutApi    = () => api.post('/auth/logout')
 
 export const getMe = () => api.get('/auth/me')
 
@@ -99,11 +151,11 @@ export const requestWithdrawal = (amount: number, method: string, account_info: 
   api.post('/withdrawals/request', { amount, method, account_info })
 
 // Admin (uses special header, no JWT)
-export const getAdminDashboard = (adminKey: string) =>
-  axios.get('/api/admin/dashboard', { headers: { 'X-Admin-Key': adminKey } })
-export const getAdminWithdrawals = (adminKey: string, status = 'pending') =>
-  axios.get<WithdrawalAdminOut[]>(`/api/admin/withdrawals?status=${status}`, { headers: { 'X-Admin-Key': adminKey } })
-export const approveWithdrawal = (adminKey: string, id: number, notes?: string) =>
-  axios.patch(`/api/admin/withdrawals/${id}/approve`, { notes }, { headers: { 'X-Admin-Key': adminKey } })
-export const rejectWithdrawal = (adminKey: string, id: number, notes?: string) =>
-  axios.patch(`/api/admin/withdrawals/${id}/reject`, { notes }, { headers: { 'X-Admin-Key': adminKey } })
+export const getAdminDashboard = (adminKey: string, adminTotp?: string) =>
+  axios.get('/api/admin/dashboard', { headers: { 'X-Admin-Key': adminKey, ...(adminTotp ? { 'X-Admin-Totp': adminTotp } : {}) } })
+export const getAdminWithdrawals = (adminKey: string, adminTotp?: string, status = 'pending') =>
+  axios.get<WithdrawalAdminOut[]>(`/api/admin/withdrawals?status=${status}`, { headers: { 'X-Admin-Key': adminKey, ...(adminTotp ? { 'X-Admin-Totp': adminTotp } : {}) } })
+export const approveWithdrawal = (adminKey: string, adminTotp: string | undefined, id: number, notes?: string) =>
+  axios.patch(`/api/admin/withdrawals/${id}/approve`, { notes }, { headers: { 'X-Admin-Key': adminKey, ...(adminTotp ? { 'X-Admin-Totp': adminTotp } : {}) } })
+export const rejectWithdrawal = (adminKey: string, adminTotp: string | undefined, id: number, notes?: string) =>
+  axios.patch(`/api/admin/withdrawals/${id}/reject`, { notes }, { headers: { 'X-Admin-Key': adminKey, ...(adminTotp ? { 'X-Admin-Totp': adminTotp } : {}) } })

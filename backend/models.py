@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, DateTime, Enum, SmallInteger, ForeignKey, UniqueConstraint, Numeric
+from sqlalchemy import Column, Integer, String, Text, DateTime, Enum, SmallInteger, ForeignKey, UniqueConstraint, Numeric, Boolean
 from sqlalchemy.orm import relationship
 from backend.database import Base
 
@@ -7,13 +7,15 @@ from backend.database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id              = Column(Integer, primary_key=True, index=True)
-    email           = Column(String(255), unique=True, nullable=False, index=True)
-    hashed_password = Column(String(255), nullable=False)
-    role            = Column(Enum("woman", "man"), nullable=False)
-    is_active       = Column(SmallInteger, default=1)
-    created_at      = Column(DateTime, default=datetime.utcnow)
-    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id                 = Column(Integer, primary_key=True, index=True)
+    email              = Column(String(255), unique=True, nullable=False, index=True)
+    hashed_password    = Column(String(255), nullable=False)
+    role               = Column(Enum("woman", "man"), nullable=False)
+    is_active          = Column(SmallInteger, default=1)
+    is_verified        = Column(SmallInteger, default=1, server_default='1')
+    verification_token = Column(String(64), nullable=True)
+    created_at         = Column(DateTime, default=datetime.utcnow)
+    updated_at         = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     profile           = relationship("WomanProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
     man_profile       = relationship("ManProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
@@ -139,3 +141,14 @@ class WithdrawalRequest(Base):
     updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     woman = relationship("User")
+
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    event_type = Column(String(50), nullable=False, index=True)
+    user_id    = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    ip_address = Column(String(45), nullable=True)
+    details    = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

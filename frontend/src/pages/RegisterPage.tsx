@@ -4,6 +4,51 @@ import toast from 'react-hot-toast'
 import { register as apiRegister } from '../api'
 import { useAuth } from '../context/AuthContext'
 
+function checkPassword(pw: string) {
+  return {
+    length:    pw.length >= 8,
+    upper:     /[A-Z]/.test(pw),
+    lower:     /[a-z]/.test(pw),
+    number:    /\d/.test(pw),
+    special:   /[!@#$%^&*(),.?":{}|<>_\-]/.test(pw),
+  }
+}
+
+function StrengthBar({ password }: { password: string }) {
+  if (!password) return null
+  const checks = checkPassword(password)
+  const score = Object.values(checks).filter(Boolean).length
+  const bars = [
+    'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-lime-400', 'bg-green-500'
+  ]
+  const labels = ['Muy débil', 'Débil', 'Regular', 'Buena', 'Fuerte']
+  return (
+    <div className="mt-2 space-y-1.5">
+      <div className="flex gap-1">
+        {[1,2,3,4,5].map(i => (
+          <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= score ? bars[score-1] : 'bg-gray-200'}`} />
+        ))}
+      </div>
+      <p className={`text-xs font-medium ${score <= 2 ? 'text-red-500' : score <= 3 ? 'text-yellow-600' : 'text-green-600'}`}>
+        {labels[score - 1] ?? ''}
+      </p>
+      <ul className="text-xs text-gray-500 space-y-0.5">
+        {[
+          [checks.length,  '8 caracteres mínimo'],
+          [checks.upper,   'Una mayúscula'],
+          [checks.lower,   'Una minúscula'],
+          [checks.number,  'Un número'],
+          [checks.special, 'Un carácter especial (!@#$%...)'],
+        ].map(([ok, label]) => (
+          <li key={label as string} className={`flex items-center gap-1 ${ok ? 'text-green-600' : 'text-gray-400'}`}>
+            <span>{ok ? '✓' : '○'}</span> {label as string}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 export default function RegisterPage() {
   const [searchParams] = useSearchParams()
   const defaultRole = searchParams.get('role') || 'woman'
@@ -14,11 +59,22 @@ export default function RegisterPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
 
+  const checks = checkPassword(password)
+  const isValid = Object.values(checks).every(Boolean)
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (!isValid) {
+      toast.error('La contraseña no cumple los requisitos de seguridad')
+      return
+    }
     setLoading(true)
     try {
       const res = await apiRegister(email, password, role)
+      if (res.data.requires_verification) {
+        navigate('/verify-email-sent', { state: { email } })
+        return
+      }
       const { access_token, user_id } = res.data
       login(access_token, { id: user_id, email, role })
       navigate(role === 'woman' ? '/woman/profile' : '/man/profile')
@@ -54,10 +110,13 @@ export default function RegisterPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-            <input type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
+            <input type="password" required value={password} onChange={e => setPassword(e.target.value)}
+              className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary transition ${
+                password && !isValid ? 'border-red-300' : password && isValid ? 'border-green-400' : 'border-gray-300'
+              }`} />
+            <StrengthBar password={password} />
           </div>
-          <button type="submit" disabled={loading}
+          <button type="submit" disabled={loading || !isValid}
             className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-pink-600 transition disabled:opacity-50">
             {loading ? 'Creando cuenta...' : 'Registrarse'}
           </button>
