@@ -46,6 +46,7 @@ export default function ManProfilePage() {
 
   const handleSave = async () => {
     if (!form.first_name.trim()) { toast.error('El nombre es obligatorio'); return }
+    if (!form.age || form.age < 18 || form.age > 99) { toast.error('La edad debe ser entre 18 y 99'); return }
     if (!form.occupation.trim()) { toast.error('La ocupación es obligatoria'); return }
     if ((profile?.photos.length ?? 0) === 0) { toast.error('Sube al menos una foto'); return }
     setSaving(true)
@@ -231,8 +232,8 @@ export default function ManProfilePage() {
               <input
                 type="number"
                 min={18} max={99}
-                value={form.age}
-                onChange={e => setForm(f => ({ ...f, age: parseInt(e.target.value) || 18 }))}
+                value={form.age === 0 ? '' : form.age}
+                onChange={e => setForm(f => ({ ...f, age: parseInt(e.target.value) || 0 }))}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
             </div>
