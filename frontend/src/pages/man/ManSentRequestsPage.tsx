@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
-import { getMySentRequests, sendGiftOnRequest, getAcceptedProfile } from '../../api'
+import { getMySentRequests, sendGiftOnRequest, getAcceptedProfile, getConversationHistory } from '../../api'
 import type { ManRequestOut, FullProfile } from '../../types'
 
 const GIFT_CATALOG: Array<{ key: string; emoji: string; label: string; price: number }> = [
@@ -247,6 +247,58 @@ function GiftModal({ requestId, onClose, onSent }: GiftModalProps) {
   )
 }
 
+// ── Gift history panel ────────────────────────────────────────────────────────
+
+interface GiftHistoryProps {
+  requestId: number
+}
+
+function GiftHistory({ requestId }: GiftHistoryProps) {
+  const [history, setHistory] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getConversationHistory(requestId)
+      .then(r => { setHistory(r.data); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [requestId])
+
+  if (loading) return <div className="py-3 text-center text-xs text-gray-400 animate-pulse">Cargando historial...</div>
+  if (!history.length) return <div className="py-3 text-center text-xs text-gray-400">Sin regalos aún</div>
+
+  const total = history.reduce((s, g) => s + (g.gift_value || 0), 0)
+
+  return (
+    <div className="mt-3 border-t border-indigo-100 pt-3 space-y-2">
+      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Historial de regalos</p>
+      {history.map((g, i) => (
+        <div key={i} className={`flex items-start gap-2.5 rounded-xl px-3 py-2 ${
+          g.sender_role === 'man' ? 'bg-blue-50' : 'bg-pink-50'
+        }`}>
+          <span className="text-xl flex-shrink-0">{g.gift_emoji}</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <p className={`text-xs font-semibold ${g.sender_role === 'man' ? 'text-blue-700' : 'text-pink-700'}`}>
+                {g.sender_role === 'man' ? 'Tú enviaste' : 'Ella envió'} · {g.gift_label}
+              </p>
+              <span className="text-xs text-gray-400 flex-shrink-0">S/ {g.gift_value}</span>
+            </div>
+            {g.gift_message && (
+              <p className="text-xs text-gray-500 italic truncate">"{g.gift_message}"</p>
+            )}
+            <p className="text-xs text-gray-300 mt-0.5">
+              {new Date(g.created_at).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
+            </p>
+          </div>
+        </div>
+      ))}
+      <div className="flex justify-end pt-1">
+        <span className="text-xs font-bold text-gray-500">Total invertido: <span className="text-indigo-600">S/ {total.toFixed(2)}</span></span>
+      </div>
+    </div>
+  )
+}
+
 type Tab = 'pending' | 'accepted' | 'rejected'
 
 // ── Main page ─────────────────────────────────────────────────────────────────
@@ -257,6 +309,7 @@ export default function ManSentRequestsPage() {
   const [tab, setTab] = useState<Tab>('pending')
   const [giftModalFor, setGiftModalFor] = useState<number | null>(null)
   const [profileModalFor, setProfileModalFor] = useState<number | null>(null)
+  const [historyOpenFor, setHistoryOpenFor] = useState<number | null>(null)
 
   const load = () => {
     setLoading(true)
@@ -459,20 +512,36 @@ export default function ManSentRequestsPage() {
 
                     {/* Actions */}
                     {isAccepted && (
-                      <div className="flex gap-2 mt-4">
+                      <>
+                        <div className="flex gap-2 mt-4">
+                          <button
+                            onClick={() => setProfileModalFor(r.woman_id)}
+                            className="flex-1 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-sm font-semibold hover:bg-indigo-100 transition"
+                          >
+                            Ver perfil
+                          </button>
+                          <button
+                            onClick={() => setGiftModalFor(r.request_id)}
+                            className="flex-1 py-2 bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-xl text-sm font-semibold hover:from-indigo-600 hover:to-blue-600 transition shadow-sm"
+                          >
+                            Enviar regalo 🎁
+                          </button>
+                        </div>
                         <button
-                          onClick={() => setProfileModalFor(r.woman_id)}
-                          className="flex-1 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-sm font-semibold hover:bg-indigo-100 transition"
+                          onClick={() => setHistoryOpenFor(historyOpenFor === r.request_id ? null : r.request_id)}
+                          className="mt-2 w-full py-1.5 text-xs text-indigo-400 hover:text-indigo-600 font-medium flex items-center justify-center gap-1 transition"
                         >
-                          Ver perfil
+                          {historyOpenFor === r.request_id ? '▲ Ocultar historial' : '▼ Ver historial de regalos'}
+                          {r.extra_gifts_sent > 0 && historyOpenFor !== r.request_id && (
+                            <span className="bg-indigo-100 text-indigo-600 rounded-full px-2 py-0.5 text-xs font-bold">
+                              {r.extra_gifts_sent + (r.gift_type ? 1 : 0) + (r.reply_gift_type ? 1 : 0)}
+                            </span>
+                          )}
                         </button>
-                        <button
-                          onClick={() => setGiftModalFor(r.request_id)}
-                          className="flex-1 py-2 bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-xl text-sm font-semibold hover:from-indigo-600 hover:to-blue-600 transition shadow-sm"
-                        >
-                          Enviar regalo 🎁
-                        </button>
-                      </div>
+                        {historyOpenFor === r.request_id && (
+                          <GiftHistory requestId={r.request_id} />
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

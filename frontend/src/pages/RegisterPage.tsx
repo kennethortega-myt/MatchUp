@@ -1,5 +1,10 @@
 import { useState, FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { GoogleLogin } from '@react-oauth/google'
+import toast from 'react-hot-toast'
+import { register as apiRegister, googleLogin } from '../api'
+import { useAuth } from '../context/AuthContext'
+import PrivacyPolicyModal from '../components/PrivacyPolicyModal'
 
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
@@ -13,9 +18,6 @@ function EyeIcon({ open }: { open: boolean }) {
     </svg>
   )
 }
-import toast from 'react-hot-toast'
-import { register as apiRegister } from '../api'
-import { useAuth } from '../context/AuthContext'
 
 function checkPassword(pw: string) {
   return {
@@ -31,9 +33,7 @@ function StrengthBar({ password }: { password: string }) {
   if (!password) return null
   const checks = checkPassword(password)
   const score = Object.values(checks).filter(Boolean).length
-  const bars = [
-    'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-lime-400', 'bg-green-500'
-  ]
+  const bars = ['bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-lime-400', 'bg-green-500']
   const labels = ['Muy débil', 'Débil', 'Regular', 'Buena', 'Fuerte']
   return (
     <div className="mt-2 space-y-1.5">
@@ -46,15 +46,15 @@ function StrengthBar({ password }: { password: string }) {
         {labels[score - 1] ?? ''}
       </p>
       <ul className="text-xs text-gray-500 space-y-0.5">
-        {[
+        {([
           [checks.length,  '8 caracteres mínimo'],
           [checks.upper,   'Una mayúscula'],
           [checks.lower,   'Una minúscula'],
           [checks.number,  'Un número'],
           [checks.special, 'Un carácter especial (!@#$%...)'],
-        ].map(([ok, label]) => (
-          <li key={label as string} className={`flex items-center gap-1 ${ok ? 'text-green-600' : 'text-gray-400'}`}>
-            <span>{ok ? '✓' : '○'}</span> {label as string}
+        ] as [boolean, string][]).map(([ok, label]) => (
+          <li key={label} className={`flex items-center gap-1 ${ok ? 'text-green-600' : 'text-gray-400'}`}>
+            <span>{ok ? '✓' : '○'}</span> {label}
           </li>
         ))}
       </ul>
@@ -69,6 +69,8 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [role, setRole] = useState<'man' | 'woman'>(defaultRole as 'man' | 'woman')
+  const [accepted, setAccepted] = useState(false)
+  const [showPrivacy, setShowPrivacy] = useState(false)
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -80,6 +82,10 @@ export default function RegisterPage() {
     e.preventDefault()
     if (!isValid) {
       toast.error('La contraseña no cumple los requisitos de seguridad')
+      return
+    }
+    if (!accepted) {
+      toast.error('Debes aceptar la Política de Privacidad para continuar')
       return
     }
     setLoading(true)
@@ -99,8 +105,23 @@ export default function RegisterPage() {
     }
   }
 
+  const handleGoogle = async (credentialResponse: any) => {
+    if (!accepted) {
+      toast.error('Debes aceptar la Política de Privacidad para continuar')
+      return
+    }
+    try {
+      const res = await googleLogin(credentialResponse.credential, role)
+      const { access_token, user_id, email: userEmail } = res.data
+      login(access_token, { id: user_id, email: userEmail, role })
+      navigate(role === 'woman' ? '/woman/profile' : '/man/profile')
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || 'Error al iniciar sesión con Google')
+    }
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pink-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-pink-50 px-4 py-8">
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
         <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Crear cuenta</h1>
 
@@ -114,6 +135,26 @@ export default function RegisterPage() {
             className={`flex-1 py-2 text-sm font-medium transition ${role === 'man' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:bg-gray-50'}`}>
             Soy Hombre
           </button>
+        </div>
+
+        {/* Google button */}
+        <div className="mb-5 flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogle}
+            onError={() => toast.error('Error al conectar con Google')}
+            text="signup_with"
+            shape="pill"
+            locale="es"
+          />
+        </div>
+
+        <div className="relative mb-5">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-white px-3 text-gray-400">o regístrate con email</span>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -136,15 +177,51 @@ export default function RegisterPage() {
             </div>
             <StrengthBar password={password} />
           </div>
-          <button type="submit" disabled={loading || !isValid}
+
+          {/* Privacy consent */}
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <div className="relative mt-0.5 flex-shrink-0">
+              <input
+                type="checkbox"
+                checked={accepted}
+                onChange={e => setAccepted(e.target.checked)}
+                className="sr-only"
+              />
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition ${
+                accepted ? 'bg-primary border-primary' : 'border-gray-300 group-hover:border-pink-300'
+              }`}>
+                {accepted && (
+                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </div>
+            </div>
+            <span className="text-xs text-gray-500 leading-relaxed">
+              He leído y acepto el tratamiento de mis datos personales conforme a la{' '}
+              <button
+                type="button"
+                onClick={() => setShowPrivacy(true)}
+                className="text-primary font-medium hover:underline"
+              >
+                Política de Privacidad
+              </button>
+              . Entiendo que mis datos serán usados para gestionar mi cuenta y mostrar mi perfil en la plataforma.
+            </span>
+          </label>
+
+          <button type="submit" disabled={loading || !isValid || !accepted}
             className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-pink-600 transition disabled:opacity-50">
             {loading ? 'Creando cuenta...' : 'Registrarse'}
           </button>
         </form>
+
         <p className="text-center text-sm text-gray-500 mt-4">
           ¿Ya tienes cuenta? <Link to="/login" className="text-primary font-medium">Inicia sesión</Link>
         </p>
       </div>
+
+      {showPrivacy && <PrivacyPolicyModal onClose={() => setShowPrivacy(false)} />}
     </div>
   )
 }

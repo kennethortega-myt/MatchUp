@@ -73,6 +73,7 @@ export const refreshToken      = () => api.post('/auth/refresh')
 export const logoutApi         = () => api.post('/auth/logout')
 export const forgotPassword    = (email: string) => api.post('/auth/forgot-password', { email })
 export const resetPassword     = (token: string, password: string) => api.post('/auth/reset-password', { token, password })
+export const googleLogin       = (credential: string, role?: string) => api.post('/auth/google', { credential, role })
 
 export const getMe = () => api.get('/auth/me')
 

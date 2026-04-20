@@ -1,7 +1,8 @@
 import { useState, FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { GoogleLogin } from '@react-oauth/google'
 import toast from 'react-hot-toast'
-import { login as apiLogin } from '../api'
+import { login as apiLogin, googleLogin } from '../api'
 import { useAuth } from '../context/AuthContext'
 
 function EyeIcon({ open }: { open: boolean }) {
@@ -24,6 +25,17 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
+
+  const handleGoogle = async (credentialResponse: any) => {
+    try {
+      const res = await googleLogin(credentialResponse.credential)
+      const { access_token, user_id, email: userEmail, role } = res.data
+      login(access_token, { id: user_id, email: userEmail, role })
+      navigate(role === 'woman' ? '/woman' : '/man')
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || 'Error al iniciar sesión con Google')
+    }
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -48,6 +60,26 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-pink-50 px-4">
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
         <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Iniciar sesión</h1>
+
+        <div className="mb-5 flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogle}
+            onError={() => toast.error('Error al conectar con Google')}
+            text="signin_with"
+            shape="pill"
+            locale="es"
+          />
+        </div>
+
+        <div className="relative mb-5">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-white px-3 text-gray-400">o inicia sesión con email</span>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>

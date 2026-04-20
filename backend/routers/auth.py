@@ -5,6 +5,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime, timedelta
 import json
+import os
 
 from backend.database import get_db
 from backend.models import User, WomanProfile, AuditLog
@@ -154,6 +155,64 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     user.verification_token = None
     db.commit()
     return {"message": "¡Cuenta verificada! Ya puedes iniciar sesión."}
+
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+
+
+class GoogleAuthRequest(BaseModel):
+    credential: str
+    role: Optional[str] = None
+
+
+@router.post("/google", response_model=LoginResponse)
+async def google_auth(
+    request: Request,
+    response: Response,
+    body: GoogleAuthRequest,
+    db: Session = Depends(get_db),
+):
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=503, detail="Google OAuth no está configurado")
+    try:
+        from google.oauth2 import id_token
+        from google.auth.transport import requests as google_requests
+        idinfo = id_token.verify_oauth2_token(
+            body.credential,
+            google_requests.Request(),
+            GOOGLE_CLIENT_ID,
+        )
+    except Exception:
+        raise HTTPException(status_code=401, detail="Token de Google inválido")
+
+    email = idinfo.get("email")
+    if not email or not idinfo.get("email_verified"):
+        raise HTTPException(status_code=400, detail="Email de Google no verificado")
+
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        import secrets as _secrets
+        role = body.role if body.role in ("man", "woman") else "woman"
+        user = User(
+            email=email,
+            hashed_password=hash_password(_secrets.token_urlsafe(32)),
+            role=role,
+            is_verified=1,
+        )
+        db.add(user)
+        db.flush()
+        if role == "woman":
+            db.add(WomanProfile(user_id=user.id))
+        db.commit()
+        db.refresh(user)
+        _audit(db, "register_google", request, user_id=user.id, details={"email": email})
+    else:
+        _audit(db, "login_google", request, user_id=user.id)
+
+    access_token  = create_access_token({"sub": str(user.id), "role": user.role})
+    refresh_token = create_refresh_token({"sub": str(user.id), "role": user.role})
+    _set_refresh_cookie(response, refresh_token)
+    return LoginResponse(access_token=access_token, user_id=user.id, role=user.role, email=user.email)
 
 
 class ForgotPasswordRequest(BaseModel):

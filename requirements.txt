@@ -14,3 +14,4 @@ slowapi==0.1.9
 fastapi-mail==1.4.1
 cryptography==44.0.2
 pyotp==2.9.0
+google-auth==2.38.0
