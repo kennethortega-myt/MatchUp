@@ -60,7 +60,8 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        if payload.get("type") != "access":
+        # accept tokens without "type" (issued before security update) and new "access" tokens
+        if payload.get("type") not in ("access", None):
             raise credentials_exception
         user_id: str = payload.get("sub")
         if user_id is None:
