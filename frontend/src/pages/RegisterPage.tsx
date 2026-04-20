@@ -144,7 +144,6 @@ export default function RegisterPage() {
             onError={() => toast.error('Error al conectar con Google')}
             text="signup_with"
             shape="pill"
-            locale="es"
           />
         </div>
 

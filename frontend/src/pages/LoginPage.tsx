@@ -67,7 +67,6 @@ export default function LoginPage() {
             onError={() => toast.error('Error al conectar con Google')}
             text="signin_with"
             shape="pill"
-            locale="es"
           />
         </div>
 
