@@ -22,7 +22,7 @@ api.interceptors.response.use(
   r => r,
   async error => {
     const orig = error.config
-    if (error.response?.status === 401 && !orig._retry && orig.url !== '/auth/refresh') {
+    if (error.response?.status === 401 && !orig._retry && orig.url !== '/auth/refresh' && orig.url !== '/auth/login') {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })

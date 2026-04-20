@@ -33,8 +33,12 @@ export default function LoginPage() {
       const { access_token, user_id, role } = res.data
       login(access_token, { id: user_id, email, role })
       navigate(role === 'woman' ? '/woman' : '/man')
-    } catch {
-      toast.error('Credenciales incorrectas')
+    } catch (err: any) {
+      if (err.response?.status === 403) {
+        toast.error('Debes verificar tu correo electrónico antes de iniciar sesión')
+      } else {
+        toast.error(err.response?.data?.detail || 'Credenciales incorrectas')
+      }
     } finally {
       setLoading(false)
     }
