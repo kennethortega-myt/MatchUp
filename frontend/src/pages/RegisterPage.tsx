@@ -21,11 +21,11 @@ function EyeIcon({ open }: { open: boolean }) {
 
 function checkPassword(pw: string) {
   return {
-    length:    pw.length >= 8,
-    upper:     /[A-Z]/.test(pw),
-    lower:     /[a-z]/.test(pw),
-    number:    /\d/.test(pw),
-    special:   /[!@#$%^&*(),.?":{}|<>_\-]/.test(pw),
+    length:  pw.length >= 8,
+    upper:   /[A-Z]/.test(pw),
+    lower:   /[a-z]/.test(pw),
+    number:  /\d/.test(pw),
+    special: /[!@#$%^&*(),.?":{}|<>_\-]/.test(pw),
   }
 }
 
@@ -38,8 +38,8 @@ function StrengthBar({ password }: { password: string }) {
   return (
     <div className="mt-2 space-y-1.5">
       <div className="flex gap-1">
-        {[1,2,3,4,5].map(i => (
-          <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= score ? bars[score-1] : 'bg-gray-200'}`} />
+        {[1, 2, 3, 4, 5].map(i => (
+          <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= score ? bars[score - 1] : 'bg-gray-200'}`} />
         ))}
       </div>
       <p className={`text-xs font-medium ${score <= 2 ? 'text-red-500' : score <= 3 ? 'text-yellow-600' : 'text-green-600'}`}>
@@ -80,14 +80,8 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!isValid) {
-      toast.error('La contraseña no cumple los requisitos de seguridad')
-      return
-    }
-    if (!accepted) {
-      toast.error('Debes aceptar la Política de Privacidad para continuar')
-      return
-    }
+    if (!isValid) { toast.error('La contraseña no cumple los requisitos de seguridad'); return }
+    if (!accepted) { toast.error('Debes aceptar la Política de Privacidad para continuar'); return }
     setLoading(true)
     try {
       const res = await apiRegister(email, password, role)
@@ -106,10 +100,7 @@ export default function RegisterPage() {
   }
 
   const handleGoogle = async (credentialResponse: any) => {
-    if (!accepted) {
-      toast.error('Debes aceptar la Política de Privacidad para continuar')
-      return
-    }
+    if (!accepted) { toast.error('Debes aceptar la Política de Privacidad para continuar'); return }
     try {
       const res = await googleLogin(credentialResponse.credential, role)
       const { access_token, user_id, email: userEmail } = res.data
@@ -121,23 +112,35 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pink-50 px-4 py-8">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Crear cuenta</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-100 px-4 py-10">
+      <div className="bg-white rounded-3xl shadow-card w-full max-w-sm sm:max-w-md p-6 sm:p-8 animate-slide-up">
+
+        {/* Logo */}
+        <div className="text-center mb-6">
+          <Link to="/" className="inline-block text-2xl font-extrabold text-primary">MatchUp 💘</Link>
+          <h1 className="text-xl font-bold text-gray-800 mt-2">Crear cuenta</h1>
+          <p className="text-gray-400 text-sm mt-1">Registro gratuito, sin tarjeta</p>
+        </div>
 
         {/* Role toggle */}
-        <div className="flex rounded-xl overflow-hidden border border-gray-200 mb-6">
-          <button type="button" onClick={() => setRole('woman')}
-            className={`flex-1 py-2 text-sm font-medium transition ${role === 'woman' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-pink-50'}`}>
-            Soy Mujer
+        <div className="flex rounded-2xl overflow-hidden border border-gray-200 mb-5 p-1 bg-gray-50 gap-1">
+          <button
+            type="button"
+            onClick={() => setRole('woman')}
+            className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition ${role === 'woman' ? 'bg-primary text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            👩 Soy Mujer
           </button>
-          <button type="button" onClick={() => setRole('man')}
-            className={`flex-1 py-2 text-sm font-medium transition ${role === 'man' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:bg-gray-50'}`}>
-            Soy Hombre
+          <button
+            type="button"
+            onClick={() => setRole('man')}
+            className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition ${role === 'man' ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            👨 Soy Hombre
           </button>
         </div>
 
-        {/* Google button */}
+        {/* Google */}
         <div className="mb-5 flex justify-center">
           <GoogleLogin
             onSuccess={handleGoogle}
@@ -158,19 +161,34 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="tu@email.com"
+              className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
+            />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Contraseña</label>
             <div className="relative">
-              <input type={showPw ? 'text' : 'password'} required value={password} onChange={e => setPassword(e.target.value)}
-                className={`w-full border rounded-xl px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary transition ${
-                  password && !isValid ? 'border-red-300' : password && isValid ? 'border-green-400' : 'border-gray-300'
-                }`} />
-              <button type="button" onClick={() => setShowPw(p => !p)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <input
+                type={showPw ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="Mín. 8 caracteres"
+                className={`w-full border rounded-2xl px-4 py-3 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition ${
+                  password && !isValid ? 'border-red-300 focus:border-red-400' : password && isValid ? 'border-green-400' : 'border-gray-200 focus:border-primary'
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw(p => !p)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+              >
                 <EyeIcon open={showPw} />
               </button>
             </div>
@@ -180,15 +198,8 @@ export default function RegisterPage() {
           {/* Privacy consent */}
           <label className="flex items-start gap-3 cursor-pointer group">
             <div className="relative mt-0.5 flex-shrink-0">
-              <input
-                type="checkbox"
-                checked={accepted}
-                onChange={e => setAccepted(e.target.checked)}
-                className="sr-only"
-              />
-              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition ${
-                accepted ? 'bg-primary border-primary' : 'border-gray-300 group-hover:border-pink-300'
-              }`}>
+              <input type="checkbox" checked={accepted} onChange={e => setAccepted(e.target.checked)} className="sr-only" />
+              <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition ${accepted ? 'bg-primary border-primary' : 'border-gray-300 group-hover:border-pink-300'}`}>
                 {accepted && (
                   <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -197,26 +208,28 @@ export default function RegisterPage() {
               </div>
             </div>
             <span className="text-xs text-gray-500 leading-relaxed">
-              He leído y acepto el tratamiento de mis datos personales conforme a la{' '}
-              <button
-                type="button"
-                onClick={() => setShowPrivacy(true)}
-                className="text-primary font-medium hover:underline"
-              >
+              He leído y acepto la{' '}
+              <button type="button" onClick={() => setShowPrivacy(true)} className="text-primary font-semibold hover:underline">
                 Política de Privacidad
               </button>
-              . Entiendo que mis datos serán usados para gestionar mi cuenta y mostrar mi perfil en la plataforma.
+              . Mis datos serán usados para gestionar mi cuenta y mostrar mi perfil.
             </span>
           </label>
 
-          <button type="submit" disabled={loading || !isValid || !accepted}
-            className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-pink-600 transition disabled:opacity-50">
-            {loading ? 'Creando cuenta...' : 'Registrarse'}
+          <button
+            type="submit"
+            disabled={loading || !isValid || !accepted}
+            className="w-full bg-gradient-to-r from-primary to-pink-600 text-white py-3 rounded-2xl font-bold hover:from-pink-600 hover:to-rose-600 transition disabled:opacity-50 shadow-sm active:scale-[0.98]"
+          >
+            {loading ? 'Creando cuenta...' : 'Crear cuenta gratis'}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 mt-4">
-          ¿Ya tienes cuenta? <Link to="/login" className="text-primary font-medium">Inicia sesión</Link>
+        <p className="text-center text-sm text-gray-500 mt-5">
+          ¿Ya tienes cuenta?{' '}
+          <Link to="/login" className="text-primary font-semibold hover:underline">
+            Inicia sesión
+          </Link>
         </p>
       </div>
 

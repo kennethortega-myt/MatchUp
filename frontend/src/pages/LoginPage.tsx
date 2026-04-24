@@ -57,10 +57,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pink-50 px-4">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Iniciar sesión</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-100 px-4 py-10">
+      <div className="bg-white rounded-3xl shadow-card w-full max-w-sm sm:max-w-md p-6 sm:p-8 animate-slide-up">
 
+        {/* Logo */}
+        <div className="text-center mb-7">
+          <Link to="/" className="inline-block text-2xl font-extrabold text-primary">MatchUp 💘</Link>
+          <h1 className="text-xl font-bold text-gray-800 mt-2">Bienvenido de vuelta</h1>
+          <p className="text-gray-400 text-sm mt-1">Inicia sesión en tu cuenta</p>
+        </div>
+
+        {/* Google */}
         <div className="mb-5 flex justify-center">
           <GoogleLogin
             onSuccess={handleGoogle}
@@ -75,37 +82,62 @@ export default function LoginPage() {
             <div className="w-full border-t border-gray-200" />
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="bg-white px-3 text-gray-400">o inicia sesión con email</span>
+            <span className="bg-white px-3 text-gray-400">o continúa con email</span>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="tu@email.com"
+              className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
+            />
           </div>
           <div>
-            <div className="flex justify-between mb-1">
-              <label className="block text-sm font-medium text-gray-700">Contraseña</label>
-              <Link to="/forgot-password" className="text-xs text-primary hover:underline">¿Olvidaste tu contraseña?</Link>
+            <div className="flex justify-between mb-1.5">
+              <label className="block text-sm font-semibold text-gray-700">Contraseña</label>
+              <Link to="/forgot-password" className="text-xs text-primary hover:underline font-medium">
+                ¿Olvidaste tu contraseña?
+              </Link>
             </div>
             <div className="relative">
-              <input type={showPw ? 'text' : 'password'} required value={password} onChange={e => setPassword(e.target.value)}
-                className="w-full border border-gray-300 rounded-xl px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary" />
-              <button type="button" onClick={() => setShowPw(p => !p)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <input
+                type={showPw ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full border border-gray-200 rounded-2xl px-4 py-3 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw(p => !p)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+              >
                 <EyeIcon open={showPw} />
               </button>
             </div>
           </div>
-          <button type="submit" disabled={loading}
-            className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-pink-600 transition disabled:opacity-50">
-            {loading ? 'Entrando...' : 'Entrar'}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-primary to-pink-600 text-white py-3 rounded-2xl font-bold hover:from-pink-600 hover:to-rose-600 transition disabled:opacity-50 shadow-sm active:scale-[0.98] mt-1"
+          >
+            {loading ? 'Entrando...' : 'Iniciar sesión'}
           </button>
         </form>
-        <p className="text-center text-sm text-gray-500 mt-4">
-          ¿No tienes cuenta? <Link to="/register" className="text-primary font-medium">Regístrate</Link>
+
+        <p className="text-center text-sm text-gray-500 mt-5">
+          ¿No tienes cuenta?{' '}
+          <Link to="/register" className="text-primary font-semibold hover:underline">
+            Regístrate gratis
+          </Link>
         </p>
       </div>
     </div>
