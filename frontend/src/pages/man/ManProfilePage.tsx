@@ -5,6 +5,20 @@ import { getManProfile, updateManProfile, uploadManPhoto, deleteManPhoto, setMan
 import type { ManProfile } from '../../types'
 import { COUNTRIES, getCitiesForCountry } from '../../data/locations'
 
+const AGES = Array.from({ length: 53 }, (_, i) => i + 18) // 18–70
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <h2 className="text-sm font-bold text-[#F5F0E8]/50 tracking-widest uppercase mb-5">{children}</h2>
+}
+
+function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
+  return (
+    <label className="block text-[10px] font-bold text-[#F5F0E8]/30 uppercase tracking-[0.18em] mb-2">
+      {children}{required && <span className="text-primary ml-1">*</span>}
+    </label>
+  )
+}
+
 export default function ManProfilePage() {
   const [profile, setProfile] = useState<ManProfile | null>(null)
   const [loading, setLoading] = useState(true)
@@ -15,7 +29,7 @@ export default function ManProfilePage() {
 
   const [form, setForm] = useState({
     first_name: '',
-    age: 18,
+    age: 25,
     bio: '',
     country: '',
     city: '',
@@ -31,7 +45,7 @@ export default function ManProfilePage() {
         setProfile(p)
         setForm({
           first_name: p.first_name || '',
-          age: p.age || 18,
+          age: p.age || 25,
           bio: p.bio || '',
           country: p.country || '',
           city: p.city || '',
@@ -46,14 +60,14 @@ export default function ManProfilePage() {
 
   const handleSave = async () => {
     if (!form.first_name.trim()) { toast.error('El nombre es obligatorio'); return }
-    if (!form.age || form.age < 18 || form.age > 99) { toast.error('La edad debe ser entre 18 y 99'); return }
+    if (!form.age || form.age < 18 || form.age > 70) { toast.error('Selecciona una edad válida'); return }
     if (!form.occupation.trim()) { toast.error('La ocupación es obligatoria'); return }
     if ((profile?.photos.length ?? 0) === 0) { toast.error('Sube al menos una foto'); return }
     setSaving(true)
     try {
       const res = await updateManProfile(form)
       setProfile(res.data)
-      toast.success(isSetup ? '¡Perfil creado! Exploremos 🔍' : 'Perfil actualizado')
+      toast.success(isSetup ? '¡Perfil creado!' : 'Perfil actualizado')
       if (isSetup) navigate('/man/browse')
     } catch {
       toast.error('Error al guardar')
@@ -82,28 +96,25 @@ export default function ManProfilePage() {
     try {
       await deleteManPhoto(photoId)
       setProfile(prev => prev ? { ...prev, photos: prev.photos.filter(p => p.id !== photoId) } : prev)
-      toast.success('Foto eliminada')
-    } catch {
-      toast.error('Error al eliminar')
-    }
+    } catch { toast.error('Error al eliminar') }
   }
 
   const handleSetPrimary = async (photoId: number) => {
     try {
       await setManPrimaryPhoto(photoId)
       setProfile(prev => prev ? {
-        ...prev,
-        photos: prev.photos.map(p => ({ ...p, is_primary: p.id === photoId ? 1 : 0 }))
+        ...prev, photos: prev.photos.map(p => ({ ...p, is_primary: p.id === photoId ? 1 : 0 }))
       } : prev)
-    } catch {
-      toast.error('Error al actualizar')
-    }
+    } catch { toast.error('Error al actualizar') }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-5xl animate-pulse">👤</div>
+      <div className="min-h-screen bg-[#070509] flex items-center justify-center">
+        <svg className="w-8 h-8 text-primary/50 animate-spin" viewBox="0 0 24 24" fill="none">
+          <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
       </div>
     )
   }
@@ -112,96 +123,94 @@ export default function ManProfilePage() {
   const canUpload = photos.length < 3
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-md border-b border-blue-100 sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-gray-800">
-              {isSetup ? 'Completa tu perfil 👋' : 'Mi Perfil'}
-            </h1>
-            <p className="text-xs text-gray-400">
-              {isSetup ? 'Las mujeres verán esto al recibir tu solicitud' : 'Información que verán las mujeres'}
-            </p>
-          </div>
-          {!isSetup && (
-            <Link to="/man/browse" className="text-sm text-blue-500 font-medium hover:text-blue-600">← Explorar</Link>
-          )}
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#070509] text-[#F5F0E8]">
 
-      {/* Setup banner */}
+      {/* Setup notice */}
       {isSetup && (
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
-          <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-            <span className="text-2xl">ℹ️</span>
-            <div>
-              <p className="font-semibold text-sm">Antes de explorar, completa tu perfil</p>
-              <p className="text-blue-100 text-xs mt-0.5">Sube al menos 1 foto y llena tus datos básicos</p>
-            </div>
+        <div className="border-b border-primary/[0.1] bg-primary/[0.05]">
+          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+            <p className="text-sm text-[#F5F0E8]/60">
+              <span className="text-[#F5F0E8]/80 font-semibold">Completa tu perfil</span> — Sube al menos 1 foto y llena tus datos básicos antes de explorar.
+            </p>
           </div>
         </div>
       )}
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
+      <div className="max-w-2xl mx-auto px-4 py-10 space-y-4">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <p className="text-[11px] text-primary tracking-[0.22em] uppercase font-bold mb-2">Mi cuenta</p>
+            <h1 className="text-3xl font-black tracking-tight">{isSetup ? 'Crear perfil' : 'Mi Perfil'}</h1>
+            <p className="text-[#F5F0E8]/30 text-sm mt-1">Información que verán las mujeres</p>
+          </div>
+          {!isSetup && (
+            <Link to="/man/browse"
+              className="flex items-center gap-1.5 text-sm text-[#F5F0E8]/35 hover:text-primary transition font-medium">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+              </svg>
+              Explorar
+            </Link>
+          )}
+        </div>
+
         {/* Photos */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-[#0F0C18] border border-white/[0.06] rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="font-bold text-gray-800">
-                Mis fotos {isSetup && <span className="text-red-400 text-xs ml-1">*obligatorio</span>}
-              </h2>
-              <p className="text-xs text-gray-400">{photos.length}/3 fotos · máximo 3</p>
+              <SectionTitle>Mis fotos</SectionTitle>
+              <p className="text-xs text-[#F5F0E8]/25 -mt-4">
+                {photos.length}/3 fotos{isSetup && <span className="text-primary ml-1">· Obligatorio</span>}
+              </p>
             </div>
             {canUpload && (
-              <button
-                onClick={() => fileRef.current?.click()}
-                disabled={uploading}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 text-white rounded-xl text-sm font-medium hover:bg-blue-600 disabled:opacity-50 transition"
-              >
-                {uploading ? '⏳' : '+ Foto'}
+              <button onClick={() => fileRef.current?.click()} disabled={uploading}
+                className="flex items-center gap-1.5 px-3 py-1.5 border border-primary/30 bg-primary/[0.08] text-primary rounded-lg text-xs font-bold hover:bg-primary/[0.15] disabled:opacity-50 transition">
+                {uploading ? 'Subiendo...' : '+ Foto'}
               </button>
             )}
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
           </div>
 
           {photos.length === 0 ? (
-            <button
-              onClick={() => fileRef.current?.click()}
-              disabled={uploading}
-              className="w-full border-2 border-dashed border-blue-200 rounded-2xl py-12 flex flex-col items-center gap-3 hover:border-blue-400 hover:bg-blue-50 transition"
-            >
-              <span className="text-5xl">📷</span>
-              <span className="text-sm text-blue-500 font-semibold">Subir primera foto</span>
-              <span className="text-xs text-gray-400">Las fotos aumentan tus chances de match</span>
+            <button onClick={() => fileRef.current?.click()} disabled={uploading}
+              className="w-full border border-dashed border-primary/20 bg-primary/[0.03] rounded-xl py-12 flex flex-col items-center gap-3 hover:border-primary/40 hover:bg-primary/[0.06] transition">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="w-10 h-10 text-primary/40">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z" />
+              </svg>
+              <span className="text-sm text-primary/60 font-medium">Subir primera foto</span>
+              <span className="text-xs text-[#F5F0E8]/20">Las fotos aumentan tus chances de match</span>
             </button>
           ) : (
             <div className="grid grid-cols-3 gap-3">
               {photos.map(photo => (
-                <div key={photo.id} className="relative group aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100">
+                <div key={photo.id} className="relative group aspect-[3/4] rounded-xl overflow-hidden bg-[#0A0812]">
                   <img src={photo.photo_url} alt="" className="w-full h-full object-contain" />
                   {photo.is_primary === 1 && (
-                    <div className="absolute top-1.5 left-1.5 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                    <div className="absolute top-1.5 left-1.5 border border-primary/40 bg-primary/20 text-primary text-[9px] px-1.5 py-0.5 rounded-full font-bold tracking-wide uppercase backdrop-blur-sm">
                       Principal
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2">
+                  <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2">
                     {photo.is_primary !== 1 && (
-                      <button onClick={() => handleSetPrimary(photo.id)} className="text-xs bg-white text-gray-800 px-2 py-1 rounded-lg font-medium hover:bg-blue-50">
-                        ⭐ Principal
+                      <button onClick={() => handleSetPrimary(photo.id)}
+                        className="text-xs bg-primary/90 text-[#0F0C18] px-3 py-1.5 rounded-lg font-bold hover:bg-primary transition">
+                        Principal
                       </button>
                     )}
-                    <button onClick={() => handleDelete(photo.id)} className="text-xs bg-red-500 text-white px-2 py-1 rounded-lg font-medium hover:bg-red-600">
-                      🗑 Eliminar
+                    <button onClick={() => handleDelete(photo.id)}
+                      className="text-xs bg-red-500/90 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-red-600 transition">
+                      Eliminar
                     </button>
                   </div>
                 </div>
               ))}
               {canUpload && (
                 <button onClick={() => fileRef.current?.click()} disabled={uploading}
-                  className="aspect-[3/4] rounded-2xl border-2 border-dashed border-blue-200 flex flex-col items-center justify-center gap-1 hover:border-blue-400 hover:bg-blue-50 transition">
-                  <span className="text-2xl text-blue-400">+</span>
-                  <span className="text-xs text-blue-400">Añadir</span>
+                  className="aspect-[3/4] rounded-xl border border-dashed border-white/[0.08] flex flex-col items-center justify-center gap-1.5 hover:border-primary/30 hover:bg-primary/[0.04] transition">
+                  <span className="text-2xl text-[#F5F0E8]/20 font-light">+</span>
+                  <span className="text-[10px] text-[#F5F0E8]/20 uppercase tracking-widest">Añadir</span>
                 </button>
               )}
             </div>
@@ -209,102 +218,62 @@ export default function ManProfilePage() {
         </div>
 
         {/* Info */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 space-y-4">
-          <h2 className="font-bold text-gray-800">Información personal</h2>
+        <div className="bg-[#0F0C18] border border-white/[0.06] rounded-2xl p-6 space-y-5">
+          <SectionTitle>Información personal</SectionTitle>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-gray-500 mb-1.5">
-                Nombre <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="text"
-                value={form.first_name}
+              <FieldLabel required>Nombre</FieldLabel>
+              <input type="text" value={form.first_name}
                 onChange={e => setForm(f => ({ ...f, first_name: e.target.value }))}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-                placeholder="Tu nombre"
-              />
+                placeholder="Tu nombre" className="input-agara" />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-500 mb-1.5">
-                Edad <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="number"
-                min={18} max={99}
-                value={form.age === 0 ? '' : form.age}
-                onChange={e => setForm(f => ({ ...f, age: parseInt(e.target.value) || 0 }))}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-              />
+              <FieldLabel required>Edad</FieldLabel>
+              <select value={form.age} onChange={e => setForm(f => ({ ...f, age: Number(e.target.value) }))}
+                className="select-agara">
+                <option value="" disabled>Seleccionar</option>
+                {AGES.map(a => <option key={a} value={a}>{a} años</option>)}
+              </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1.5">
-              Ocupación <span className="text-red-400">*</span>
-            </label>
-            <input
-              type="text"
-              value={form.occupation}
+            <FieldLabel required>Ocupación</FieldLabel>
+            <input type="text" value={form.occupation}
               onChange={e => setForm(f => ({ ...f, occupation: e.target.value }))}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-              placeholder="Ej: Ingeniero de software, Médico, Empresario..."
-            />
+              placeholder="Ingeniero, Médico, Empresario..." className="input-agara" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-gray-500 mb-1.5">País</label>
-              <select
-                value={form.country}
+              <FieldLabel>País</FieldLabel>
+              <select value={form.country}
                 onChange={e => setForm(f => ({ ...f, country: e.target.value, city: '' }))}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
-              >
-                <option value="">Seleccionar...</option>
-                {COUNTRIES.map(c => (
-                  <option key={c.code} value={c.name}>{c.name}</option>
-                ))}
+                className="select-agara">
+                <option value="" disabled>Seleccionar</option>
+                {COUNTRIES.map(c => <option key={c.code} value={c.name}>{c.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-500 mb-1.5">Ciudad</label>
-              <select
-                value={form.city}
-                onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
-                disabled={!form.country}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white disabled:opacity-50"
-              >
-                <option value="">Seleccionar...</option>
-                {cities.map(city => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
+              <FieldLabel>Ciudad</FieldLabel>
+              <select value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
+                disabled={!form.country} className="select-agara disabled:opacity-40">
+                <option value="" disabled>Seleccionar</option>
+                {cities.map(city => <option key={city} value={city}>{city}</option>)}
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1.5">
-              Sobre mí <span className="text-red-400">*</span>
-            </label>
-            <textarea
-              rows={4}
-              value={form.bio}
+            <FieldLabel>Sobre mí</FieldLabel>
+            <textarea rows={4} value={form.bio}
               onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-300"
-              placeholder="Cuéntanos sobre ti, tus intereses, qué buscas..."
-            />
+              placeholder="Cuéntanos sobre ti, tus intereses, qué buscas..." className="textarea-agara" />
           </div>
 
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl font-semibold text-sm hover:from-blue-600 hover:to-indigo-600 disabled:opacity-50 transition shadow-sm"
-          >
-            {saving
-              ? 'Guardando...'
-              : isSetup
-              ? 'Crear perfil y explorar →'
-              : 'Guardar cambios'}
+          <button onClick={handleSave} disabled={saving} className="btn-gold">
+            {saving ? 'Guardando...' : isSetup ? 'Crear perfil y explorar' : 'Guardar cambios'}
           </button>
         </div>
       </div>
