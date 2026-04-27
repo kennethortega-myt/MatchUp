@@ -66,17 +66,17 @@ export default function ProfileSetupPage() {
   useEffect(() => {
     Promise.all([
       getProfile().then(r => {
-        setForm(r.data)
-        const { code, number } = parsePhone(r.data.phone)
+        const p = r.data
+        setForm(p)
+        const { code, number } = parsePhone(p.phone)
         setPhoneCode(code)
         setPhoneNumber(number)
-        if (r.data.looking_for) {
-          setLookingFor(r.data.looking_for.split(',').filter(Boolean) as LookingFor[])
+        if (p.looking_for) {
+          setLookingFor([p.looking_for as LookingFor])
         }
-      }),
-      getMyPhotos().then(r => setPhotos(r.data)),
+      }).catch(() => {}),
+      getMyPhotos().then(r => setPhotos(r.data)).catch(() => {}),
     ])
-      .catch(() => toast.error('Error al cargar el perfil'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -86,8 +86,25 @@ export default function ProfileSetupPage() {
     e.preventDefault()
     setSaving(true)
     const fullPhone = phoneNumber.trim() ? `${phoneCode} ${phoneNumber.trim()}` : ''
+    // Backend Enum only accepts a single value — send first selected, or undefined
+    const lookingForValue = (lookingFor[0] as LookingFor) || undefined
     try {
-      await updateProfile({ ...form, phone: fullPhone || undefined, looking_for: lookingFor.join(',') as LookingFor || undefined })
+      const res = await updateProfile({
+        first_name:  form.first_name,
+        age:         form.age,
+        bio:         form.bio,
+        country:     form.country,
+        city:        form.city,
+        location:    form.location,
+        occupation:  form.occupation,
+        instagram:   form.instagram,
+        phone:       fullPhone || undefined,
+        looking_for: lookingForValue,
+      })
+      setForm(res.data)
+      const { code, number } = parsePhone(res.data.phone)
+      setPhoneCode(code)
+      setPhoneNumber(number)
       toast.success('Perfil guardado')
     } catch (err: any) {
       toast.error(err.response?.data?.detail || 'Error al guardar')
