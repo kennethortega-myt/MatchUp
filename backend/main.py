@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
+from sqlalchemy import text
 from backend.database import engine, Base
 from backend.routers import auth, women, subscriptions, browse, matches
 from backend.routers import gifts, admin as admin_router, men, withdrawals
@@ -17,6 +18,25 @@ from backend.limiter import limiter
 
 # Create all DB tables
 Base.metadata.create_all(bind=engine)
+
+# ── Startup migrations (idempotent) ───────────────────────────────────────────
+def _run_migrations():
+    stmts = [
+        # Add missing columns to woman_profiles
+        "ALTER TABLE woman_profiles ADD COLUMN telegram VARCHAR(100) NULL",
+        "ALTER TABLE woman_profiles ADD COLUMN tiktok   VARCHAR(100) NULL",
+        # Change looking_for from ENUM to VARCHAR to support multiple values
+        "ALTER TABLE woman_profiles MODIFY COLUMN looking_for VARCHAR(255) NULL",
+    ]
+    with engine.connect() as conn:
+        for stmt in stmts:
+            try:
+                conn.execute(text(stmt))
+                conn.commit()
+            except Exception:
+                pass  # column already exists or already migrated
+
+_run_migrations()
 
 app = FastAPI(title="MatchUp API", version="1.0.0")
 

@@ -173,13 +173,21 @@ export default function PublicPreviewPage() {
               )}
 
               {/* Looking for */}
-              {profile.looking_for && LOOKING_FOR_MAP[profile.looking_for] && (
+              {profile.looking_for && (
                 <div className="border-t border-white/[0.05] pt-3.5">
-                  <p className="text-[10px] font-bold text-[#F5F0E8]/25 uppercase tracking-widest mb-2">Busca</p>
-                  <span className="inline-flex items-center gap-1.5 border border-primary/20 bg-primary/[0.07] text-primary text-xs px-3 py-1.5 rounded-full font-semibold">
-                    <span>{LOOKING_FOR_MAP[profile.looking_for].emoji}</span>
-                    <span>{LOOKING_FOR_MAP[profile.looking_for].label}</span>
-                  </span>
+                  <p className="text-[10px] font-bold text-[#F5F0E8]/25 uppercase tracking-widest mb-2.5">Busca</p>
+                  <div className="flex flex-wrap gap-2">
+                    {profile.looking_for.split(',').filter(Boolean).map(val => {
+                      const item = LOOKING_FOR_MAP[val.trim()]
+                      if (!item) return null
+                      return (
+                        <span key={val} className="inline-flex items-center gap-1.5 border border-primary/20 bg-primary/[0.07] text-primary text-xs px-3 py-1.5 rounded-full font-semibold">
+                          <span>{item.emoji}</span>
+                          <span>{item.label}</span>
+                        </span>
+                      )
+                    })}
+                  </div>
                 </div>
               )}
 
@@ -215,7 +223,7 @@ export default function PublicPreviewPage() {
 
               {/* Empty state */}
               {!profile.occupation && !profile.bio && !profile.looking_for &&
-               !profile.phone && !profile.instagram && !profile.telegram && !profile.tiktok && (
+               !profile.phone && !profile.instagram && !profile.telegram && !profile.tiktok && (profile.photos.length === 0) && (
                 <div className="text-center py-6">
                   <p className="text-[#F5F0E8]/22 text-sm">Tu perfil está incompleto.</p>
                   <a href="/woman/profile" className="text-primary text-sm font-semibold hover:text-gold-light transition mt-1.5 inline-block">Completar perfil →</a>

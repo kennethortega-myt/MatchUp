@@ -57,6 +57,8 @@ class ProfileUpdate(BaseModel):
     occupation:  Optional[str] = None
     phone:       Optional[str] = None
     instagram:   Optional[str] = None
+    telegram:    Optional[str] = None
+    tiktok:      Optional[str] = None
     looking_for: Optional[str] = None
 
     @field_validator("first_name", "bio", "occupation", "location", mode="before")
@@ -68,9 +70,13 @@ class ProfileUpdate(BaseModel):
     @field_validator("looking_for")
     @classmethod
     def validate_looking_for(cls, v):
-        if v is not None and v not in LOOKING_FOR_OPTIONS:
-            raise ValueError(f"looking_for must be one of {LOOKING_FOR_OPTIONS}")
-        return v
+        if v is None or v == '':
+            return None
+        parts = [p.strip() for p in v.split(',') if p.strip()]
+        invalid = [p for p in parts if p not in LOOKING_FOR_OPTIONS]
+        if invalid:
+            raise ValueError(f"looking_for values must be from {LOOKING_FOR_OPTIONS}")
+        return ','.join(parts)
 
 
 class ProfileOut(BaseModel):
@@ -85,6 +91,8 @@ class ProfileOut(BaseModel):
     occupation:  Optional[str]
     phone:       Optional[str]
     instagram:   Optional[str]
+    telegram:    Optional[str]
+    tiktok:      Optional[str]
     looking_for: Optional[str]
     is_complete: int
 
@@ -220,6 +228,8 @@ class FullProfileOut(BaseModel):
     occupation:  Optional[str]
     phone:       Optional[str]
     instagram:   Optional[str]
+    telegram:    Optional[str]
+    tiktok:      Optional[str]
     looking_for: Optional[str]
     photos:      List[PhotoOut]
 

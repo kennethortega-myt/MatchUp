@@ -86,8 +86,8 @@ export default function ProfileSetupPage() {
     e.preventDefault()
     setSaving(true)
     const fullPhone = phoneNumber.trim() ? `${phoneCode} ${phoneNumber.trim()}` : ''
-    // Backend Enum only accepts a single value — send first selected, or undefined
-    const lookingForValue = (lookingFor[0] as LookingFor) || undefined
+    // Send comma-separated values (backend now accepts VARCHAR multi-value)
+    const lookingForValue = lookingFor.length > 0 ? (lookingFor.join(',') as LookingFor) : undefined
     try {
       const res = await updateProfile({
         first_name:  form.first_name,
@@ -107,6 +107,11 @@ export default function ProfileSetupPage() {
       const { code, number } = parsePhone(res.data.phone)
       setPhoneCode(code)
       setPhoneNumber(number)
+      if (res.data.looking_for) {
+        setLookingFor(res.data.looking_for.split(',').filter(Boolean) as LookingFor[])
+      } else {
+        setLookingFor([])
+      }
       toast.success('Perfil guardado')
     } catch (err: any) {
       toast.error(err.response?.data?.detail || 'Error al guardar')
