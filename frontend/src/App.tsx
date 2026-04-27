@@ -19,6 +19,7 @@ import ManProfilePage from './pages/man/ManProfilePage'
 import ManPhotosPage from './pages/man/ManPhotosPage'
 import ManSentRequestsPage from './pages/man/ManSentRequestsPage'
 import Navbar from './components/Navbar'
+import ManGate from './components/ManGate'
 import VerifyEmailSentPage from './pages/VerifyEmailSentPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
@@ -49,11 +50,11 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route
           path="/login"
-          element={token ? <Navigate to={user?.role === 'woman' ? '/woman/profile' : '/man/browse'} /> : <LoginPage />}
+          element={token ? <Navigate to={user?.role === 'woman' ? '/woman/profile' : '/man/profile'} /> : <LoginPage />}
         />
         <Route
           path="/register"
-          element={token ? <Navigate to={user?.role === 'woman' ? '/woman/profile' : '/man/browse'} /> : <RegisterPage />}
+          element={token ? <Navigate to={user?.role === 'woman' ? '/woman/profile' : '/man/profile'} /> : <RegisterPage />}
         />
 
         {/* Woman routes */}
@@ -94,7 +95,7 @@ export default function App() {
         {/* Man routes */}
         <Route
           path="/man"
-          element={<ProtectedRoute role="man"><Navigate to="/man/browse" replace /></ProtectedRoute>}
+          element={<ProtectedRoute role="man"><Navigate to="/man/profile" replace /></ProtectedRoute>}
         />
         <Route
           path="/man/subscribe"
@@ -102,7 +103,7 @@ export default function App() {
         />
         <Route
           path="/man/browse"
-          element={<ProtectedRoute role="man"><BrowsePage /></ProtectedRoute>}
+          element={<ProtectedRoute role="man"><ManGate><BrowsePage /></ManGate></ProtectedRoute>}
         />
         <Route
           path="/man/matches"
@@ -110,7 +111,7 @@ export default function App() {
         />
         <Route
           path="/man/gifts"
-          element={<ProtectedRoute role="man"><ManGiftsPage /></ProtectedRoute>}
+          element={<ProtectedRoute role="man"><ManGate><ManGiftsPage /></ManGate></ProtectedRoute>}
         />
         <Route
           path="/man/profile"
@@ -122,7 +123,7 @@ export default function App() {
         />
         <Route
           path="/man/requests"
-          element={<ProtectedRoute role="man"><ManSentRequestsPage /></ProtectedRoute>}
+          element={<ProtectedRoute role="man"><ManGate><ManSentRequestsPage /></ManGate></ProtectedRoute>}
         />
 
         <Route path="*" element={<Navigate to="/" />} />

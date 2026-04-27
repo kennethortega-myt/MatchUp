@@ -4,9 +4,17 @@ import toast from 'react-hot-toast'
 import { checkout } from '../../api'
 
 const PLANS = [
-  { id: 'monthly', label: 'Mensual', price: 'S/ 39.90', days: '30 días', highlight: false },
-  { id: 'yearly', label: 'Anual', price: 'S/ 199.90', days: '365 días', highlight: true },
+  { id: 'monthly', label: 'Mensual', price: 'S/ 39.90', sub: '30 días de acceso', popular: false },
+  { id: 'yearly',  label: 'Anual',   price: 'S/ 199.90', sub: '365 días · Ahorra 58%', popular: true },
 ]
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <label className="block text-[10px] font-bold text-[#F5F0E8]/30 uppercase tracking-[0.18em] mb-2">
+      {children}
+    </label>
+  )
+}
 
 export default function SubscribePage() {
   const [plan, setPlan] = useState<'monthly' | 'yearly'>('monthly')
@@ -19,7 +27,7 @@ export default function SubscribePage() {
     setLoading(true)
     try {
       await checkout(plan, card.number, card.expiry, card.cvv)
-      toast.success('¡Suscripción activada! 🎉')
+      toast.success('¡Membresía activada!')
       navigate('/man/browse')
     } catch (err: any) {
       toast.error(err.response?.data?.detail || 'Error al procesar el pago')
@@ -29,50 +37,98 @@ export default function SubscribePage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold text-gray-800 mb-8 text-center">Elige tu plan</h1>
-
-      {/* Plan selector */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        {PLANS.map(p => (
-          <button key={p.id} type="button" onClick={() => setPlan(p.id as any)}
-            className={`rounded-2xl p-5 border-2 text-left transition ${plan === p.id ? 'border-primary bg-pink-50' : 'border-gray-200 hover:border-pink-300'}`}>
-            {p.highlight && <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full mb-2 inline-block">Popular</span>}
-            <p className="font-bold text-gray-800 text-lg">{p.price}</p>
-            <p className="text-gray-500 text-sm">{p.label} · {p.days}</p>
-          </button>
-        ))}
+    <div className="min-h-screen bg-[#070509] text-[#F5F0E8]">
+      {/* Onboarding notice */}
+      <div className="border-b border-primary/[0.1] bg-primary/[0.05]">
+        <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
+          <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+          <p className="text-sm text-[#F5F0E8]/60">
+            <span className="text-[#F5F0E8]/80 font-semibold">Último paso</span> — Activa tu membresía para explorar perfiles y enviar solicitudes.
+          </p>
+        </div>
       </div>
 
-      {/* Mock payment form */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
-        <h2 className="font-semibold text-gray-700 mb-2">Datos de pago (demo)</h2>
-        <div>
-          <label className="block text-sm text-gray-600 mb-1">Número de tarjeta</label>
-          <input required value={card.number} onChange={e => setCard(c => ({ ...c, number: e.target.value }))}
-            placeholder="4242 4242 4242 4242" maxLength={19}
-            className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
+      <div className="max-w-lg mx-auto px-4 py-10 space-y-6">
+        {/* Header */}
+        <div className="mb-2">
+          <p className="text-[11px] text-primary tracking-[0.22em] uppercase font-bold mb-2">Membresía</p>
+          <h1 className="text-3xl font-black tracking-tight">Elige tu plan</h1>
+          <p className="text-[#F5F0E8]/30 text-sm mt-1">Acceso ilimitado a todos los perfiles</p>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Vencimiento</label>
-            <input required value={card.expiry} onChange={e => setCard(c => ({ ...c, expiry: e.target.value }))}
-              placeholder="MM/AA" maxLength={5}
-              className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">CVV</label>
-            <input required value={card.cvv} onChange={e => setCard(c => ({ ...c, cvv: e.target.value }))}
-              placeholder="123" maxLength={4}
-              className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
-          </div>
+
+        {/* Plan selector */}
+        <div className="grid grid-cols-2 gap-3">
+          {PLANS.map(p => (
+            <button key={p.id} type="button" onClick={() => setPlan(p.id as 'monthly' | 'yearly')}
+              className={`relative rounded-2xl p-5 border text-left transition-all ${
+                plan === p.id
+                  ? 'border-primary/60 bg-primary/[0.08] shadow-[0_0_20px_rgba(212,175,55,0.08)]'
+                  : 'border-white/[0.06] bg-[#0F0C18] hover:border-white/[0.12]'
+              }`}>
+              {p.popular && (
+                <span className="absolute -top-2.5 left-4 text-[10px] font-bold tracking-wider uppercase bg-primary text-[#070509] px-2.5 py-0.5 rounded-full">
+                  Popular
+                </span>
+              )}
+              <p className={`text-xl font-black mb-1 ${plan === p.id ? 'text-primary' : 'text-[#F5F0E8]'}`}>
+                {p.price}
+              </p>
+              <p className="text-[11px] font-bold text-[#F5F0E8]/80">{p.label}</p>
+              <p className="text-[11px] text-[#F5F0E8]/35 mt-0.5">{p.sub}</p>
+              {plan === p.id && (
+                <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                  <svg className="w-2.5 h-2.5 text-[#070509]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                </div>
+              )}
+            </button>
+          ))}
         </div>
-        <button type="submit" disabled={loading}
-          className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-pink-600 transition disabled:opacity-50">
-          {loading ? 'Procesando...' : 'Activar Suscripción'}
-        </button>
-        <p className="text-center text-xs text-gray-400">Demo — no se realiza ningún cobro real</p>
-      </form>
+
+        {/* Payment form */}
+        <form onSubmit={handleSubmit} className="bg-[#0F0C18] border border-white/[0.06] rounded-2xl p-6 space-y-5">
+          <div className="flex items-center gap-2 mb-1">
+            <svg className="w-4 h-4 text-primary/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+            </svg>
+            <span className="text-[11px] font-bold text-[#F5F0E8]/40 uppercase tracking-[0.15em]">Datos de pago (demo)</span>
+          </div>
+
+          <div>
+            <FieldLabel>Número de tarjeta</FieldLabel>
+            <input required value={card.number}
+              onChange={e => setCard(c => ({ ...c, number: e.target.value }))}
+              placeholder="4242 4242 4242 4242" maxLength={19}
+              className="input-agara" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <FieldLabel>Vencimiento</FieldLabel>
+              <input required value={card.expiry}
+                onChange={e => setCard(c => ({ ...c, expiry: e.target.value }))}
+                placeholder="MM/AA" maxLength={5}
+                className="input-agara" />
+            </div>
+            <div>
+              <FieldLabel>CVV</FieldLabel>
+              <input required value={card.cvv}
+                onChange={e => setCard(c => ({ ...c, cvv: e.target.value }))}
+                placeholder="123" maxLength={4}
+                className="input-agara" />
+            </div>
+          </div>
+
+          <button type="submit" disabled={loading} className="btn-gold">
+            {loading ? 'Procesando...' : 'Activar Membresía'}
+          </button>
+
+          <p className="text-center text-[10px] text-[#F5F0E8]/20 tracking-wide">
+            Demo — no se realiza ningún cobro real
+          </p>
+        </form>
+      </div>
     </div>
   )
 }

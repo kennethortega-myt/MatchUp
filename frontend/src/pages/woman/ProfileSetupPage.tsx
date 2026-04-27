@@ -72,7 +72,7 @@ export default function ProfileSetupPage() {
         setPhoneCode(code)
         setPhoneNumber(number)
         if (p.looking_for) {
-          setLookingFor([p.looking_for as LookingFor])
+          setLookingFor(p.looking_for.split(',').filter(Boolean) as LookingFor[])
         }
       }).catch(() => {}),
       getMyPhotos().then(r => setPhotos(r.data)).catch(() => {}),

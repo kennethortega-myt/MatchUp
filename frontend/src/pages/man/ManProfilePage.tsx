@@ -68,7 +68,7 @@ export default function ManProfilePage() {
       const res = await updateManProfile(form)
       setProfile(res.data)
       toast.success(isSetup ? '¡Perfil creado!' : 'Perfil actualizado')
-      if (isSetup) navigate('/man/browse')
+      if (isSetup) navigate('/man/subscribe')
     } catch {
       toast.error('Error al guardar')
     } finally {
@@ -131,7 +131,7 @@ export default function ManProfilePage() {
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
             <p className="text-sm text-[#F5F0E8]/60">
-              <span className="text-[#F5F0E8]/80 font-semibold">Completa tu perfil</span> — Sube al menos 1 foto y llena tus datos básicos antes de explorar.
+              <span className="text-[#F5F0E8]/80 font-semibold">Paso 1 de 2 — Completa tu perfil</span> — Sube al menos 1 foto y llena tus datos básicos para continuar.
             </p>
           </div>
         </div>
@@ -273,7 +273,7 @@ export default function ManProfilePage() {
           </div>
 
           <button onClick={handleSave} disabled={saving} className="btn-gold">
-            {saving ? 'Guardando...' : isSetup ? 'Crear perfil y explorar' : 'Guardar cambios'}
+            {saving ? 'Guardando...' : isSetup ? 'Crear perfil y continuar' : 'Guardar cambios'}
           </button>
         </div>
       </div>

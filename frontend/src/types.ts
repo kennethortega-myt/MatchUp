@@ -26,7 +26,7 @@ export interface WomanProfile {
   instagram?: string
   telegram?: string
   tiktok?: string
-  looking_for?: LookingFor
+  looking_for?: string
   is_complete: number
 }
 
@@ -66,7 +66,7 @@ export interface WomanCard {
   age?: number
   country?: string
   city?: string
-  looking_for?: LookingFor
+  looking_for?: string
   primary_photo_url?: string
   request_status?: 'pending' | 'accepted' | 'rejected' | null
 }
@@ -116,7 +116,7 @@ export interface FullProfile {
   instagram?: string
   telegram?: string
   tiktok?: string
-  looking_for?: LookingFor
+  looking_for?: string
   photos: Photo[]
 }
 
