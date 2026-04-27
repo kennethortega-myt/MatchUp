@@ -2,166 +2,231 @@ import { Link } from 'react-router-dom'
 
 const features = [
   {
-    icon: '📸',
-    title: 'Fotos reales',
-    desc: 'Las mujeres suben hasta 6 fotos y controlan quién ve su perfil completo.',
-    color: 'from-pink-50 to-rose-50 border-pink-100',
-    iconBg: 'bg-pink-100',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+      </svg>
+    ),
+    title: 'Fotos auténticas',
+    desc: 'Perfiles verificados con hasta 6 fotos. Sin filtros falsos, sin perfiles vacíos.',
   },
   {
-    icon: '🔒',
-    title: 'Privacidad total',
-    desc: 'Tus datos privados solo se revelan cuando decides aceptar una solicitud.',
-    color: 'from-purple-50 to-indigo-50 border-purple-100',
-    iconBg: 'bg-purple-100',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+      </svg>
+    ),
+    title: 'Privacidad absoluta',
+    desc: 'Tu información personal permanece oculta hasta que tú decidas aceptar una conexión.',
   },
   {
-    icon: '💳',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+      </svg>
+    ),
     title: 'Acceso premium',
-    desc: 'Los hombres activan su suscripción y comienzan a enviar solicitudes de match.',
-    color: 'from-blue-50 to-cyan-50 border-blue-100',
-    iconBg: 'bg-blue-100',
+    desc: 'Suscripción exclusiva que garantiza interacciones de calidad y hombres serios.',
   },
   {
-    icon: '🎁',
-    title: 'Envía regalos',
-    desc: 'Destácate enviando regalos virtuales junto a tu solicitud de match.',
-    color: 'from-amber-50 to-yellow-50 border-amber-100',
-    iconBg: 'bg-amber-100',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+      </svg>
+    ),
+    title: 'Regalos exclusivos',
+    desc: 'Destácate con regalos virtuales que demuestran tu nivel de interés genuino.',
   },
   {
-    icon: '💰',
-    title: 'Gana dinero',
-    desc: 'Las mujeres reciben el 30% del valor de cada regalo enviado por sus admiradores.',
-    color: 'from-emerald-50 to-teal-50 border-emerald-100',
-    iconBg: 'bg-emerald-100',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      </svg>
+    ),
+    title: 'Genera ingresos',
+    desc: 'Las mujeres reciben el 30% del valor de cada regalo. Tu tiempo y atención tienen valor.',
   },
   {
-    icon: '💘',
-    title: 'Conexiones reales',
-    desc: 'Hombres y mujeres verificados buscando conexiones auténticas.',
-    color: 'from-red-50 to-pink-50 border-red-100',
-    iconBg: 'bg-red-100',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+      </svg>
+    ),
+    title: 'Conexiones verificadas',
+    desc: 'Usuarios verificados y perfiles curados. Sin bots, sin perfiles falsos.',
   },
 ]
 
 const steps = [
-  { role: 'Mujeres', emoji: '👩', steps: ['Crea tu perfil con fotos', 'Aparece en las búsquedas', 'Acepta o rechaza solicitudes', 'Recibe regalos y gana'] },
-  { role: 'Hombres', emoji: '👨', steps: ['Activa tu suscripción', 'Explora perfiles reales', 'Envía solicitudes y regalos', 'Desbloquea los matches aceptados'] },
+  {
+    role: 'Para Mujeres',
+    accent: 'from-rose-500 to-pink-600',
+    border: 'border-rose-500/20',
+    glow: 'shadow-rose-500/10',
+    steps: [
+      'Crea tu perfil con hasta 6 fotos',
+      'Aparece en búsquedas de hombres premium',
+      'Acepta o rechaza solicitudes a tu criterio',
+      'Recibe regalos y monetiza tu presencia',
+    ],
+  },
+  {
+    role: 'Para Hombres',
+    accent: 'from-amber-400 to-yellow-500',
+    border: 'border-amber-500/20',
+    glow: 'shadow-amber-500/10',
+    steps: [
+      'Activa tu membresía premium',
+      'Explora perfiles auténticos y verificados',
+      'Envía solicitudes y regalos destacados',
+      'Desbloquea el perfil completo al hacer match',
+    ],
+  },
 ]
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#080808] text-white overflow-x-hidden">
 
       {/* Hero */}
-      <section className="relative bg-gradient-to-br from-pink-50 via-rose-50 to-purple-100 pt-16 pb-20 px-4 text-center overflow-hidden">
-        {/* Decorative blobs */}
-        <div className="absolute top-0 left-0 w-72 h-72 bg-pink-200/40 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-200/40 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 pointer-events-none" />
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 text-center overflow-hidden">
+        {/* Background gradients */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(233,30,140,0.15),transparent)]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-rose-600/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative max-w-3xl mx-auto">
-          <span className="inline-block bg-pink-100 text-primary text-xs font-bold px-3 py-1 rounded-full mb-5 tracking-wide uppercase">
-            💘 La app de citas con privacidad real
-          </span>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-5">
-            Encuentra tu{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">
-              conexión real
+        {/* Grid texture */}
+        <div
+          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{
+            backgroundImage: 'linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px)',
+            backgroundSize: '60px 60px',
+          }}
+        />
+
+        <div className="relative max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full mb-8">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+            <span className="text-xs text-white/60 tracking-widest uppercase font-medium">Plataforma exclusiva de conexiones</span>
+          </div>
+
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.9] tracking-tight mb-6">
+            <span className="block text-white">Conexiones</span>
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-400 to-rose-300">
+              de alto nivel.
             </span>
           </h1>
-          <p className="text-lg sm:text-xl text-gray-500 mb-10 max-w-xl mx-auto leading-relaxed">
-            Las mujeres controlan su privacidad. Los hombres descubren perfiles auténticos después de conectar.
+
+          <p className="text-lg sm:text-xl text-white/40 mb-12 max-w-xl mx-auto leading-relaxed font-light">
+            La plataforma donde la privacidad es un derecho, el tiempo tiene valor
+            y las conexiones son completamente reales.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/register?role=woman"
-              className="bg-gradient-to-r from-primary to-pink-600 text-white px-8 py-4 rounded-2xl text-base font-bold hover:from-pink-600 hover:to-rose-600 transition shadow-lg shadow-pink-200 active:scale-95"
+              className="group relative inline-flex items-center justify-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white px-8 py-4 rounded-xl text-sm font-bold tracking-wide uppercase hover:from-rose-400 hover:to-pink-500 transition-all shadow-xl shadow-rose-500/20 active:scale-95"
             >
-              Soy Mujer — Crear Perfil
+              <span>Crear perfil — Mujeres</span>
+              <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
             </Link>
             <Link
               to="/register?role=man"
-              className="bg-gray-900 text-white px-8 py-4 rounded-2xl text-base font-bold hover:bg-gray-700 transition shadow-lg shadow-gray-200 active:scale-95"
+              className="group inline-flex items-center justify-center gap-2 border border-white/15 bg-white/5 backdrop-blur-sm text-white px-8 py-4 rounded-xl text-sm font-bold tracking-wide uppercase hover:bg-white/10 hover:border-white/25 transition-all active:scale-95"
             >
-              Soy Hombre — Explorar
+              <span>Membresía — Hombres</span>
+              <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
             </Link>
           </div>
 
-          <p className="mt-5 text-xs text-gray-400">
+          <p className="mt-6 text-xs text-white/20 tracking-wide">
             Registro gratuito · Sin tarjeta de crédito requerida
           </p>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/20">
+          <span className="text-xs tracking-widest uppercase">Descubrir</span>
+          <svg className="w-4 h-4 animate-bounce" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
         </div>
       </section>
 
       {/* Stats */}
-      <section className="bg-white border-y border-gray-100 py-8 px-4">
+      <section className="border-y border-white/5 bg-white/[0.02] py-10 px-4">
         <div className="max-w-3xl mx-auto grid grid-cols-3 gap-4 text-center">
           {[
-            { value: '100%', label: 'Privacidad' },
-            { value: '30%', label: 'Ganancias mujer' },
-            { value: '24/7', label: 'Disponible' },
+            { value: '100%', label: 'Privacidad garantizada' },
+            { value: '30%', label: 'Ingresos para mujeres' },
+            { value: '0', label: 'Perfiles falsos' },
           ].map(s => (
             <div key={s.label}>
-              <p className="text-2xl sm:text-3xl font-extrabold text-primary">{s.value}</p>
-              <p className="text-xs sm:text-sm text-gray-500 mt-0.5">{s.label}</p>
+              <p className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50">{s.value}</p>
+              <p className="text-xs text-white/30 mt-1 tracking-wide uppercase">{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Features */}
-      <section className="py-16 px-4 bg-gray-50">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3">
-              Todo lo que necesitas
+      <section className="py-24 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-xs text-rose-400 tracking-widest uppercase font-bold mb-3">La plataforma</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight">
+              Diseñado para quienes<br />
+              <span className="text-white/30">no aceptan menos.</span>
             </h2>
-            <p className="text-gray-500 max-w-md mx-auto text-sm sm:text-base">
-              Una plataforma diseñada para conexiones auténticas y seguras.
-            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {features.map(f => (
               <div
                 key={f.title}
-                className={`bg-gradient-to-br ${f.color} border rounded-2xl p-5 hover:shadow-md transition`}
+                className="group relative border border-white/5 bg-white/[0.03] rounded-2xl p-6 hover:bg-white/[0.06] hover:border-white/10 transition-all duration-300"
               >
-                <div className={`w-11 h-11 ${f.iconBg} rounded-2xl flex items-center justify-center text-2xl mb-3`}>
+                <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mb-4 group-hover:bg-rose-500/20 transition-colors">
                   {f.icon}
                 </div>
-                <h3 className="font-bold text-gray-800 mb-1">{f.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{f.desc}</p>
+                <h3 className="font-bold text-white text-base mb-2">{f.title}</h3>
+                <p className="text-white/40 text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Divider */}
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      </div>
+
       {/* How it works */}
-      <section className="py-16 px-4 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3">¿Cómo funciona?</h2>
-            <p className="text-gray-500 text-sm sm:text-base">Pasos simples para empezar a conectar</p>
+      <section className="py-24 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-xs text-rose-400 tracking-widest uppercase font-bold mb-3">El proceso</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight">
+              Simple. Directo.{' '}
+              <span className="text-white/30">Sin rodeos.</span>
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {steps.map(role => (
-              <div key={role.role} className="bg-gradient-to-br from-pink-50 to-purple-50 border border-pink-100 rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-5">
-                  <span className="text-3xl">{role.emoji}</span>
-                  <h3 className="text-lg font-bold text-gray-800">{role.role}</h3>
+              <div
+                key={role.role}
+                className={`relative border ${role.border} bg-white/[0.03] rounded-2xl p-8 shadow-2xl ${role.glow}`}
+              >
+                <div className={`inline-block text-xs font-black tracking-widest uppercase px-3 py-1 rounded-full bg-gradient-to-r ${role.accent} text-black mb-6`}>
+                  {role.role}
                 </div>
-                <ol className="space-y-3">
+                <ol className="space-y-4">
                   {role.steps.map((step, i) => (
-                    <li key={step} className="flex items-center gap-3">
-                      <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shadow-sm">
+                    <li key={step} className="flex items-start gap-4">
+                      <span className={`flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br ${role.accent} text-black text-xs font-black flex items-center justify-center mt-0.5`}>
                         {i + 1}
                       </span>
-                      <span className="text-gray-700 text-sm font-medium">{step}</span>
+                      <span className="text-white/60 text-sm leading-relaxed font-medium pt-0.5">{step}</span>
                     </li>
                   ))}
                 </ol>
@@ -172,38 +237,48 @@ export default function LandingPage() {
       </section>
 
       {/* CTA final */}
-      <section className="py-16 px-4 bg-gradient-to-br from-primary to-pink-700 text-white text-center">
-        <div className="max-w-xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-extrabold mb-3">¿Listo para conectar?</h2>
-          <p className="text-pink-100 mb-8 text-sm sm:text-base">
-            Únete gratis hoy y comienza a construir conexiones reales.
+      <section className="relative py-32 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_50%_50%,rgba(233,30,140,0.12),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_50%_50%,rgba(233,30,140,0.06),transparent)]" />
+
+        <div className="relative max-w-2xl mx-auto text-center">
+          <p className="text-xs text-rose-400 tracking-widest uppercase font-bold mb-4">Únete ahora</p>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight mb-6">
+            Tu estándar merece<br />una plataforma a tu nivel.
+          </h2>
+          <p className="text-white/30 mb-12 text-base max-w-md mx-auto">
+            Miles de personas eligiendo calidad sobre cantidad. ¿Cuándo empiezas tú?
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/register?role=woman"
-              className="bg-white text-primary font-bold px-7 py-3.5 rounded-2xl hover:bg-pink-50 transition shadow-lg active:scale-95 text-sm sm:text-base"
+              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold px-8 py-4 rounded-xl hover:from-rose-400 hover:to-pink-500 transition-all shadow-xl shadow-rose-500/25 active:scale-95 text-sm tracking-wide uppercase"
             >
               Crear perfil de mujer
             </Link>
             <Link
               to="/register?role=man"
-              className="bg-white/20 text-white font-bold px-7 py-3.5 rounded-2xl hover:bg-white/30 transition border border-white/30 active:scale-95 text-sm sm:text-base"
+              className="inline-flex items-center justify-center gap-2 border border-white/15 bg-white/5 text-white font-bold px-8 py-4 rounded-xl hover:bg-white/10 hover:border-white/25 transition-all active:scale-95 text-sm tracking-wide uppercase"
             >
-              Suscribirse como hombre
+              Activar membresía
             </Link>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-8 px-4 text-center text-xs">
-        <p className="font-bold text-white text-base mb-1">MatchUp 💘</p>
-        <p className="mb-3">Conexiones reales, privacidad garantizada.</p>
-        <div className="flex gap-4 justify-center flex-wrap">
-          <Link to="/register" className="hover:text-white transition">Registrarse</Link>
-          <Link to="/login" className="hover:text-white transition">Iniciar sesión</Link>
+      <footer className="border-t border-white/5 bg-black py-10 px-4">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <p className="font-black text-white text-lg tracking-tight">MatchUp</p>
+            <p className="text-xs text-white/20 mt-0.5">Conexiones reales, privacidad garantizada.</p>
+          </div>
+          <div className="flex gap-6 text-xs text-white/25">
+            <Link to="/register" className="hover:text-white transition">Registrarse</Link>
+            <Link to="/login" className="hover:text-white transition">Iniciar sesión</Link>
+          </div>
+          <p className="text-xs text-white/15">© {new Date().getFullYear()} MatchUp</p>
         </div>
-        <p className="mt-4 text-gray-600">© {new Date().getFullYear()} MatchUp. Todos los derechos reservados.</p>
       </footer>
     </div>
   )
