@@ -8,7 +8,7 @@ import AgaraLogo from './AgaraLogo'
 
 const THEMES: { value: Theme; bg: string; label: string }[] = [
   { value: 'dark',  bg: '#070509', label: 'Oscuro'    },
-  { value: 'pink',  bg: '#F4A7C0', label: 'Rosa'      },
+  { value: 'pink',  bg: '#E0337A', label: 'Rosa'      },
   { value: 'white', bg: '#F7F7F8', label: 'Blanco'    },
 ]
 
