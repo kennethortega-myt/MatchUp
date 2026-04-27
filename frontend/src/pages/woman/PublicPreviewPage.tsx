@@ -4,6 +4,14 @@ import type { FullProfile } from '../../types'
 
 type ViewMode = 'card' | 'full'
 
+const LOOKING_FOR_MAP: Record<string, { label: string; emoji: string }> = {
+  relationship: { label: 'Relación seria',      emoji: '💑' },
+  casual:       { label: 'Casual',              emoji: '✨' },
+  commitment:   { label: 'Compromiso',          emoji: '💍' },
+  outing:       { label: 'Salir a conocernos',  emoji: '🌸' },
+  surprise:     { label: 'Sorpréndeme',         emoji: '🎲' },
+}
+
 export default function PublicPreviewPage() {
   const [profile, setProfile]   = useState<FullProfile | null>(null)
   const [card, setCard]         = useState<{ first_name: string; primary_photo_url?: string } | null>(null)
@@ -30,6 +38,8 @@ export default function PublicPreviewPage() {
       </div>
     )
   }
+
+  const locationText = [profile?.city, profile?.country].filter(Boolean).join(', ') || profile?.location
 
   return (
     <div className="min-h-screen bg-[#070509] text-[#F5F0E8]">
@@ -59,7 +69,7 @@ export default function PublicPreviewPage() {
           ))}
         </div>
 
-        {/* Card view */}
+        {/* ── Card view ── */}
         {view === 'card' && (
           <div className="flex flex-col items-center">
             <div className="border border-primary/[0.1] bg-primary/[0.04] rounded-xl px-5 py-3 mb-6 text-center">
@@ -88,14 +98,16 @@ export default function PublicPreviewPage() {
           </div>
         )}
 
-        {/* Full profile view */}
+        {/* ── Full profile view ── */}
         {view === 'full' && profile && (
           <div className="bg-[#0F0C18] border border-white/[0.06] rounded-2xl overflow-hidden"
             style={{ boxShadow: '0 24px 80px rgba(0,0,0,0.5), 0 0 60px rgba(201,168,76,0.04)' }}>
+
             <div className="border-b border-primary/[0.1] bg-primary/[0.04] px-4 py-2.5 text-center">
               <p className="text-[11px] text-primary/65 tracking-wide font-medium">Visible solo tras aceptar una solicitud</p>
             </div>
 
+            {/* Photos */}
             {profile.photos.length > 0 ? (
               <div className="relative aspect-[3/4] overflow-hidden bg-[#0A0812]">
                 <img src={profile.photos[photoIdx]?.photo_url} alt="" className="w-full h-full object-cover" />
@@ -125,10 +137,10 @@ export default function PublicPreviewPage() {
                     <h2 className="text-2xl font-black text-white tracking-tight">
                       {profile.first_name || '(sin nombre)'}{profile.age ? `, ${profile.age}` : ''}
                     </h2>
-                    {profile.location && (
+                    {locationText && (
                       <p className="text-white/45 text-xs flex items-center gap-1 mt-0.5">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-                        {profile.location}
+                        {locationText}
                       </p>
                     )}
                   </div>
@@ -140,20 +152,39 @@ export default function PublicPreviewPage() {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.75" className="w-16 h-16 text-[#F5F0E8]/8">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                 </svg>
+                <p className="text-[#F5F0E8]/20 text-xs mt-4">Sin fotos aún</p>
               </div>
             )}
 
+            {/* Info section */}
             <div className="p-6 space-y-3.5">
+
+              {/* Occupation */}
               {profile.occupation && (
                 <div className="flex items-center gap-3 text-sm text-[#F5F0E8]/50">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4 text-primary/50 flex-shrink-0"><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
                   {profile.occupation}
                 </div>
               )}
+
+              {/* Bio */}
               {profile.bio && (
                 <p className="text-sm text-[#F5F0E8]/38 leading-relaxed border-t border-white/[0.05] pt-3.5">{profile.bio}</p>
               )}
-              {(profile.phone || profile.instagram) && (
+
+              {/* Looking for */}
+              {profile.looking_for && LOOKING_FOR_MAP[profile.looking_for] && (
+                <div className="border-t border-white/[0.05] pt-3.5">
+                  <p className="text-[10px] font-bold text-[#F5F0E8]/25 uppercase tracking-widest mb-2">Busca</p>
+                  <span className="inline-flex items-center gap-1.5 border border-primary/20 bg-primary/[0.07] text-primary text-xs px-3 py-1.5 rounded-full font-semibold">
+                    <span>{LOOKING_FOR_MAP[profile.looking_for].emoji}</span>
+                    <span>{LOOKING_FOR_MAP[profile.looking_for].label}</span>
+                  </span>
+                </div>
+              )}
+
+              {/* Contact info */}
+              {(profile.phone || profile.instagram || profile.telegram || profile.tiktok) && (
                 <div className="border-t border-white/[0.05] pt-3.5 space-y-2.5">
                   {profile.phone && (
                     <div className="flex items-center gap-3 text-sm">
@@ -167,9 +198,24 @@ export default function PublicPreviewPage() {
                       <span className="text-[#F5F0E8]/50">{profile.instagram}</span>
                     </div>
                   )}
+                  {profile.telegram && (
+                    <div className="flex items-center gap-3 text-sm">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4 text-primary/50 flex-shrink-0"><path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" /></svg>
+                      <span className="text-[#F5F0E8]/50">{profile.telegram}</span>
+                    </div>
+                  )}
+                  {profile.tiktok && (
+                    <div className="flex items-center gap-3 text-sm">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4 text-primary/50 flex-shrink-0"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" /></svg>
+                      <span className="text-[#F5F0E8]/50">{profile.tiktok}</span>
+                    </div>
+                  )}
                 </div>
               )}
-              {!profile.location && !profile.occupation && !profile.bio && !profile.phone && !profile.instagram && (
+
+              {/* Empty state */}
+              {!profile.occupation && !profile.bio && !profile.looking_for &&
+               !profile.phone && !profile.instagram && !profile.telegram && !profile.tiktok && (
                 <div className="text-center py-6">
                   <p className="text-[#F5F0E8]/22 text-sm">Tu perfil está incompleto.</p>
                   <a href="/woman/profile" className="text-primary text-sm font-semibold hover:text-gold-light transition mt-1.5 inline-block">Completar perfil →</a>

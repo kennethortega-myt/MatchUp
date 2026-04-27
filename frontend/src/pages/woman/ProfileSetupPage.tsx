@@ -98,6 +98,8 @@ export default function ProfileSetupPage() {
         location:    form.location,
         occupation:  form.occupation,
         instagram:   form.instagram,
+        telegram:    form.telegram,
+        tiktok:      form.tiktok,
         phone:       fullPhone || undefined,
         looking_for: lookingForValue,
       })
@@ -282,11 +284,23 @@ export default function ProfileSetupPage() {
             </div>
           </div>
 
-          {/* Instagram */}
-          <div>
-            <FieldLabel>Instagram</FieldLabel>
-            <input type="text" value={form.instagram ?? ''} onChange={e => set('instagram', e.target.value)}
-              placeholder="@tuusuario" className="input-agara" />
+          {/* Instagram / Telegram / TikTok */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <FieldLabel>Instagram</FieldLabel>
+              <input type="text" value={form.instagram ?? ''} onChange={e => set('instagram', e.target.value)}
+                placeholder="@usuario" className="input-agara" />
+            </div>
+            <div>
+              <FieldLabel>Telegram</FieldLabel>
+              <input type="text" value={form.telegram ?? ''} onChange={e => set('telegram', e.target.value)}
+                placeholder="@usuario" className="input-agara" />
+            </div>
+            <div>
+              <FieldLabel>TikTok</FieldLabel>
+              <input type="text" value={form.tiktok ?? ''} onChange={e => set('tiktok', e.target.value)}
+                placeholder="@usuario" className="input-agara" />
+            </div>
           </div>
 
           {/* Looking for */}

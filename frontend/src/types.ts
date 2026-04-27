@@ -24,6 +24,8 @@ export interface WomanProfile {
   occupation?: string
   phone?: string
   instagram?: string
+  telegram?: string
+  tiktok?: string
   looking_for?: LookingFor
   is_complete: number
 }
@@ -112,6 +114,8 @@ export interface FullProfile {
   occupation?: string
   phone?: string
   instagram?: string
+  telegram?: string
+  tiktok?: string
   looking_for?: LookingFor
   photos: Photo[]
 }
