@@ -18,34 +18,50 @@ export default function VerifyEmailPage() {
   }, [token])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pink-50 px-4">
-      <div className="bg-white rounded-2xl shadow-lg p-10 w-full max-w-md text-center">
+    <div className="min-h-screen bg-[#09090B] flex items-center justify-center px-6 py-12">
+      <div className="w-full max-w-md text-center">
+        <Link to="/" className="block font-black text-white text-xl tracking-tight mb-12">MatchUp</Link>
+
         {state === 'loading' && (
           <>
-            <div className="text-5xl mb-4 animate-pulse">⏳</div>
-            <p className="text-gray-500">Verificando tu cuenta...</p>
+            <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mx-auto mb-6">
+              <svg className="w-6 h-6 text-white/30 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            </div>
+            <p className="text-white/30 text-sm">Verificando tu cuenta...</p>
           </>
         )}
+
         {state === 'success' && (
           <>
-            <div className="text-6xl mb-4">✅</div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">¡Cuenta verificada!</h1>
-            <p className="text-gray-500 mb-6">{message}</p>
-            <Link
-              to="/login"
-              className="inline-block bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-pink-600 transition"
-            >
-              Iniciar sesión →
+            <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-6">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-7 h-7 text-emerald-400">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-black text-white mb-3">Cuenta verificada</h1>
+            <p className="text-white/30 text-sm mb-8 leading-relaxed">{message}</p>
+            <Link to="/login"
+              className="inline-flex items-center gap-2 bg-primary hover:bg-pink-600 text-white px-6 py-3 rounded-xl text-sm font-bold tracking-wide uppercase transition-all shadow-lg shadow-primary/20 active:scale-[0.97]">
+              Iniciar sesión
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
             </Link>
           </>
         )}
+
         {state === 'error' && (
           <>
-            <div className="text-6xl mb-4">❌</div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Enlace inválido</h1>
-            <p className="text-gray-500 mb-6">{message}</p>
-            <Link to="/register" className="text-primary font-medium text-sm hover:underline">
-              Registrarse de nuevo →
+            <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-6">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-7 h-7 text-red-400">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-black text-white mb-3">Enlace inválido</h1>
+            <p className="text-white/30 text-sm mb-8 leading-relaxed">{message}</p>
+            <Link to="/register" className="text-primary hover:text-pink-400 text-sm font-semibold transition">
+              Registrarse de nuevo
             </Link>
           </>
         )}

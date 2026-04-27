@@ -8,13 +8,13 @@ import PrivacyPolicyModal from '../components/PrivacyPolicyModal'
 
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4.5 h-4.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
     </svg>
   ) : (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4.5 h-4.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
     </svg>
   )
 }
@@ -33,19 +33,18 @@ function StrengthBar({ password }: { password: string }) {
   if (!password) return null
   const checks = checkPassword(password)
   const score = Object.values(checks).filter(Boolean).length
-  const bars = ['bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-lime-400', 'bg-green-500']
+  const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-lime-500', 'bg-emerald-500']
   const labels = ['Muy débil', 'Débil', 'Regular', 'Buena', 'Fuerte']
+  const textColors = ['text-red-400', 'text-orange-400', 'text-yellow-400', 'text-lime-400', 'text-emerald-400']
   return (
-    <div className="mt-2 space-y-1.5">
+    <div className="mt-2.5 space-y-2">
       <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map(i => (
-          <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= score ? bars[score - 1] : 'bg-gray-200'}`} />
+        {[1,2,3,4,5].map(i => (
+          <div key={i} className={`h-1 flex-1 rounded-full transition-all ${i <= score ? colors[score-1] : 'bg-white/[0.06]'}`} />
         ))}
       </div>
-      <p className={`text-xs font-medium ${score <= 2 ? 'text-red-500' : score <= 3 ? 'text-yellow-600' : 'text-green-600'}`}>
-        {labels[score - 1] ?? ''}
-      </p>
-      <ul className="text-xs text-gray-500 space-y-0.5">
+      <p className={`text-xs font-semibold ${textColors[score-1] ?? 'text-white/20'}`}>{labels[score-1] ?? ''}</p>
+      <ul className="space-y-0.5">
         {([
           [checks.length,  '8 caracteres mínimo'],
           [checks.upper,   'Una mayúscula'],
@@ -53,8 +52,13 @@ function StrengthBar({ password }: { password: string }) {
           [checks.number,  'Un número'],
           [checks.special, 'Un carácter especial (!@#$%...)'],
         ] as [boolean, string][]).map(([ok, label]) => (
-          <li key={label} className={`flex items-center gap-1 ${ok ? 'text-green-600' : 'text-gray-400'}`}>
-            <span>{ok ? '✓' : '○'}</span> {label}
+          <li key={label} className={`text-xs flex items-center gap-1.5 ${ok ? 'text-emerald-400' : 'text-white/20'}`}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={ok ? 2.5 : 1.5} className="w-3 h-3 flex-shrink-0">
+              {ok
+                ? <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                : <circle cx="12" cy="12" r="8" />}
+            </svg>
+            {label}
           </li>
         ))}
       </ul>
@@ -80,8 +84,8 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!isValid) { toast.error('La contraseña no cumple los requisitos de seguridad'); return }
-    if (!accepted) { toast.error('Debes aceptar la Política de Privacidad para continuar'); return }
+    if (!isValid) { toast.error('La contraseña no cumple los requisitos'); return }
+    if (!accepted) { toast.error('Debes aceptar la Política de Privacidad'); return }
     setLoading(true)
     try {
       const res = await apiRegister(email, password, role)
@@ -100,7 +104,7 @@ export default function RegisterPage() {
   }
 
   const handleGoogle = async (credentialResponse: any) => {
-    if (!accepted) { toast.error('Debes aceptar la Política de Privacidad para continuar'); return }
+    if (!accepted) { toast.error('Debes aceptar la Política de Privacidad'); return }
     try {
       const res = await googleLogin(credentialResponse.credential, role)
       const { access_token, user_id, email: userEmail } = res.data
@@ -112,125 +116,135 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-100 px-4 py-10">
-      <div className="bg-white rounded-3xl shadow-card w-full max-w-sm sm:max-w-md p-6 sm:p-8 animate-slide-up">
-
-        {/* Logo */}
-        <div className="text-center mb-6">
-          <Link to="/" className="inline-block text-2xl font-extrabold text-primary">MatchUp 💘</Link>
-          <h1 className="text-xl font-bold text-gray-800 mt-2">Crear cuenta</h1>
-          <p className="text-gray-400 text-sm mt-1">Registro gratuito, sin tarjeta</p>
+    <div className="min-h-screen bg-[#09090B] flex">
+      {/* Left panel */}
+      <div className="hidden lg:flex flex-col justify-between w-[45%] bg-[#0D0D0F] border-r border-white/[0.05] p-12">
+        <Link to="/" className="font-black text-white text-xl tracking-tight">MatchUp</Link>
+        <div>
+          <p className="text-[11px] text-primary tracking-[0.2em] uppercase font-bold mb-4">¿Por qué unirte?</p>
+          <ul className="space-y-4">
+            {[
+              ['Privacidad total', 'Tu información nunca se revela sin tu consentimiento.'],
+              ['Solo perfiles reales', 'Verificados y curados. Sin bots ni perfiles vacíos.'],
+              ['Conexiones con criterio', 'Hombres con membresía activa. Mujeres que eligen.'],
+            ].map(([title, desc]) => (
+              <li key={title} className="flex items-start gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                <div>
+                  <p className="text-white/70 text-sm font-semibold">{title}</p>
+                  <p className="text-white/25 text-xs mt-0.5 leading-relaxed">{desc}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
-
-        {/* Role toggle */}
-        <div className="flex rounded-2xl overflow-hidden border border-gray-200 mb-5 p-1 bg-gray-50 gap-1">
-          <button
-            type="button"
-            onClick={() => setRole('woman')}
-            className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition ${role === 'woman' ? 'bg-primary text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-          >
-            👩 Soy Mujer
-          </button>
-          <button
-            type="button"
-            onClick={() => setRole('man')}
-            className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition ${role === 'man' ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-          >
-            👨 Soy Hombre
-          </button>
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+          <span className="text-xs text-white/20 tracking-widest uppercase">Plataforma activa</span>
         </div>
+      </div>
 
-        {/* Google */}
-        <div className="mb-5 flex justify-center">
-          <GoogleLogin
-            onSuccess={handleGoogle}
-            onError={() => toast.error('Error al conectar con Google')}
-            text="signup_with"
-            shape="pill"
-          />
-        </div>
+      {/* Right panel */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md">
+          <Link to="/" className="block lg:hidden font-black text-white text-xl tracking-tight text-center mb-10">MatchUp</Link>
 
-        <div className="relative mb-5">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200" />
+          <div className="mb-8">
+            <h1 className="text-2xl font-black text-white mb-1.5">Crear cuenta</h1>
+            <p className="text-white/30 text-sm">Registro gratuito, sin tarjeta de crédito</p>
           </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-white px-3 text-gray-400">o regístrate con email</span>
-          </div>
-        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="tu@email.com"
-              className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
+          {/* Role selector */}
+          <div className="flex gap-2 mb-6 p-1 bg-white/[0.04] rounded-xl border border-white/[0.06]">
+            <button type="button" onClick={() => setRole('woman')}
+              className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${
+                role === 'woman' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-white/30 hover:text-white/60'
+              }`}>
+              Soy Mujer
+            </button>
+            <button type="button" onClick={() => setRole('man')}
+              className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${
+                role === 'man' ? 'bg-white/10 text-white border border-white/20' : 'text-white/30 hover:text-white/60'
+              }`}>
+              Soy Hombre
+            </button>
+          </div>
+
+          {/* Google */}
+          <div className="mb-5 flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogle}
+              onError={() => toast.error('Error al conectar con Google')}
+              text="signup_with"
+              shape="pill"
+              theme="filled_black"
             />
           </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Contraseña</label>
-            <div className="relative">
-              <input
-                type={showPw ? 'text' : 'password'}
-                required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="Mín. 8 caracteres"
-                className={`w-full border rounded-2xl px-4 py-3 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition ${
-                  password && !isValid ? 'border-red-300 focus:border-red-400' : password && isValid ? 'border-green-400' : 'border-gray-200 focus:border-primary'
-                }`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPw(p => !p)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
-              >
-                <EyeIcon open={showPw} />
-              </button>
+
+          <div className="relative mb-5">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-white/[0.06]" />
             </div>
-            <StrengthBar password={password} />
+            <div className="relative flex justify-center text-[11px]">
+              <span className="bg-[#09090B] px-3 text-white/20 tracking-widest uppercase">o con email</span>
+            </div>
           </div>
 
-          {/* Privacy consent */}
-          <label className="flex items-start gap-3 cursor-pointer group">
-            <div className="relative mt-0.5 flex-shrink-0">
-              <input type="checkbox" checked={accepted} onChange={e => setAccepted(e.target.checked)} className="sr-only" />
-              <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition ${accepted ? 'bg-primary border-primary' : 'border-gray-300 group-hover:border-pink-300'}`}>
-                {accepted && (
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="label-dark">Email</label>
+              <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="tu@email.com" className="input-dark" />
             </div>
-            <span className="text-xs text-gray-500 leading-relaxed">
-              He leído y acepto la{' '}
-              <button type="button" onClick={() => setShowPrivacy(true)} className="text-primary font-semibold hover:underline">
-                Política de Privacidad
-              </button>
-              . Mis datos serán usados para gestionar mi cuenta y mostrar mi perfil.
-            </span>
-          </label>
 
-          <button
-            type="submit"
-            disabled={loading || !isValid || !accepted}
-            className="w-full bg-gradient-to-r from-primary to-pink-600 text-white py-3 rounded-2xl font-bold hover:from-pink-600 hover:to-rose-600 transition disabled:opacity-50 shadow-sm active:scale-[0.98]"
-          >
-            {loading ? 'Creando cuenta...' : 'Crear cuenta gratis'}
-          </button>
-        </form>
+            <div>
+              <label className="label-dark">Contraseña</label>
+              <div className="relative">
+                <input type={showPw ? 'text' : 'password'} required value={password}
+                  onChange={e => setPassword(e.target.value)} placeholder="Mín. 8 caracteres"
+                  className={`input-dark pr-11 ${
+                    password && !isValid ? 'border-red-500/40' : password && isValid ? 'border-emerald-500/40' : ''
+                  }`} />
+                <button type="button" onClick={() => setShowPw(p => !p)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50 transition">
+                  <EyeIcon open={showPw} />
+                </button>
+              </div>
+              <StrengthBar password={password} />
+            </div>
 
-        <p className="text-center text-sm text-gray-500 mt-5">
-          ¿Ya tienes cuenta?{' '}
-          <Link to="/login" className="text-primary font-semibold hover:underline">
-            Inicia sesión
-          </Link>
-        </p>
+            {/* Privacy */}
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="relative mt-0.5 flex-shrink-0">
+                <input type="checkbox" checked={accepted} onChange={e => setAccepted(e.target.checked)} className="sr-only" />
+                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                  accepted ? 'bg-primary border-primary' : 'border-white/20 group-hover:border-primary/50'
+                }`}>
+                  {accepted && (
+                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-xs text-white/25 leading-relaxed">
+                He leído y acepto la{' '}
+                <button type="button" onClick={() => setShowPrivacy(true)} className="text-primary hover:text-pink-400 font-semibold transition">
+                  Política de Privacidad
+                </button>
+              </span>
+            </label>
+
+            <button type="submit" disabled={loading || !isValid || !accepted} className="btn-primary">
+              {loading ? 'Creando cuenta...' : 'Crear cuenta gratis'}
+            </button>
+          </form>
+
+          <p className="text-center text-sm text-white/25 mt-6">
+            ¿Ya tienes cuenta?{' '}
+            <Link to="/login" className="text-primary hover:text-pink-400 font-semibold transition">Inicia sesión</Link>
+          </p>
+        </div>
       </div>
 
       {showPrivacy && <PrivacyPolicyModal onClose={() => setShowPrivacy(false)} />}
