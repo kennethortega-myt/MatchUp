@@ -23,12 +23,12 @@ const PHONE_CODES = [
 
 const AGES = Array.from({ length: 53 }, (_, i) => i + 18) // 18–70
 
-const LOOKING_FOR_OPTIONS: { value: LookingFor; label: string; desc: string }[] = [
-  { value: 'relationship', label: 'Relación seria',   desc: 'Busco algo estable' },
-  { value: 'casual',       label: 'Casual',           desc: 'Sin compromisos' },
-  { value: 'commitment',   label: 'Compromiso',       desc: 'Para siempre' },
-  { value: 'outing',       label: 'Salir a conocernos', desc: 'Poco a poco' },
-  { value: 'surprise',     label: 'Sorpréndeme',      desc: 'Abierta a todo' },
+const LOOKING_FOR_OPTIONS: { value: LookingFor; label: string; desc: string; emoji: string }[] = [
+  { value: 'relationship', label: 'Relación seria',   desc: 'Busco algo estable',   emoji: '💑' },
+  { value: 'casual',       label: 'Casual',           desc: 'Sin compromisos',       emoji: '✨' },
+  { value: 'commitment',   label: 'Compromiso',       desc: 'Para siempre',          emoji: '💍' },
+  { value: 'outing',       label: 'Salir a conocernos', desc: 'Poco a poco',         emoji: '🌸' },
+  { value: 'surprise',     label: 'Sorpréndeme',      desc: 'Abierta a todo',        emoji: '🎲' },
 ]
 
 function parsePhone(raw?: string): { code: string; number: string } {
@@ -56,6 +56,7 @@ export default function ProfileSetupPage() {
   const [form, setForm] = useState<Partial<WomanProfile>>({})
   const [phoneCode, setPhoneCode] = useState('+51')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [lookingFor, setLookingFor] = useState<LookingFor[]>([])
   const [photos, setPhotos] = useState<Photo[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -69,6 +70,9 @@ export default function ProfileSetupPage() {
         const { code, number } = parsePhone(r.data.phone)
         setPhoneCode(code)
         setPhoneNumber(number)
+        if (r.data.looking_for) {
+          setLookingFor(r.data.looking_for.split(',').filter(Boolean) as LookingFor[])
+        }
       }),
       getMyPhotos().then(r => setPhotos(r.data)),
     ])
@@ -83,7 +87,7 @@ export default function ProfileSetupPage() {
     setSaving(true)
     const fullPhone = phoneNumber.trim() ? `${phoneCode} ${phoneNumber.trim()}` : ''
     try {
-      await updateProfile({ ...form, phone: fullPhone || undefined })
+      await updateProfile({ ...form, phone: fullPhone || undefined, looking_for: lookingFor.join(',') as LookingFor || undefined })
       toast.success('Perfil guardado')
     } catch (err: any) {
       toast.error(err.response?.data?.detail || 'Error al guardar')
@@ -271,26 +275,33 @@ export default function ProfileSetupPage() {
           {/* Looking for */}
           <div>
             <FieldLabel>¿Qué estás buscando?</FieldLabel>
+            <p className="text-[10px] text-[#F5F0E8]/25 -mt-1 mb-3">Puedes elegir más de una opción</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {LOOKING_FOR_OPTIONS.map(opt => (
-                <button key={opt.value} type="button"
-                  onClick={() => set('looking_for', form.looking_for === opt.value ? '' : opt.value)}
-                  className={`flex items-start gap-3 px-4 py-3 rounded-xl border text-left transition-all ${
-                    form.looking_for === opt.value
-                      ? 'border-primary/40 bg-primary/[0.1] text-[#F5F0E8]'
-                      : 'border-white/[0.06] hover:border-primary/25 hover:bg-primary/[0.05] text-[#F5F0E8]/50'
-                  }`}>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">{opt.label}</p>
-                    <p className="text-[11px] opacity-60 mt-0.5">{opt.desc}</p>
-                  </div>
-                  {form.looking_for === opt.value && (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4 text-primary flex-shrink-0 mt-0.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  )}
-                </button>
-              ))}
+              {LOOKING_FOR_OPTIONS.map(opt => {
+                const active = lookingFor.includes(opt.value)
+                return (
+                  <button key={opt.value} type="button"
+                    onClick={() => setLookingFor(prev =>
+                      prev.includes(opt.value) ? prev.filter(v => v !== opt.value) : [...prev, opt.value]
+                    )}
+                    className={`flex items-start gap-3 px-4 py-3 rounded-xl border text-left transition-all ${
+                      active
+                        ? 'border-primary/40 bg-primary/[0.1] text-[#F5F0E8]'
+                        : 'border-white/[0.06] hover:border-primary/25 hover:bg-primary/[0.05] text-[#F5F0E8]/50'
+                    }`}>
+                    <span className={`text-xl flex-shrink-0 transition-all ${active ? 'scale-110' : 'opacity-50'}`}>{opt.emoji}</span>
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm">{opt.label}</p>
+                      <p className="text-[11px] opacity-60 mt-0.5">{opt.desc}</p>
+                    </div>
+                    {active && (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4 text-primary flex-shrink-0 mt-0.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                    )}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
