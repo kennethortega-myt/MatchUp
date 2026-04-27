@@ -2,8 +2,34 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext'
+import { useTheme, type Theme } from '../context/ThemeContext'
 import { getPendingRequests, getReceivedGifts } from '../api'
 import AgaraLogo from './AgaraLogo'
+
+const THEMES: { value: Theme; bg: string; label: string }[] = [
+  { value: 'dark',  bg: '#070509', label: 'Oscuro'    },
+  { value: 'pink',  bg: '#F4A7C0', label: 'Rosa'      },
+  { value: 'white', bg: '#F7F7F8', label: 'Blanco'    },
+]
+
+function ThemeSwitcher() {
+  const { theme, setTheme } = useTheme()
+  return (
+    <div className="flex items-center gap-1 px-1.5 py-1 rounded-lg border border-white/[0.07] bg-white/[0.03]">
+      {THEMES.map(t => (
+        <button
+          key={t.value}
+          onClick={() => setTheme(t.value)}
+          title={t.label}
+          className={`w-4 h-4 rounded-full transition-all duration-150 ${
+            theme === t.value ? 'ring-2 ring-primary ring-offset-1 ring-offset-transparent scale-110' : 'opacity-60 hover:opacity-100'
+          }`}
+          style={{ background: t.bg, border: t.value === 'white' ? '1px solid rgba(0,0,0,0.15)' : 'none' }}
+        />
+      ))}
+    </div>
+  )
+}
 
 function Badge({ count }: { count: number }) {
   if (count === 0) return null
@@ -95,6 +121,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-0.5">
           {!user ? (
             <>
+              <ThemeSwitcher />
               <Link to="/login"
                 className="px-4 py-2 text-sm text-[#F5F0E8]/35 hover:text-[#F5F0E8]/70 font-medium transition-colors rounded-lg hover:bg-white/[0.04]">
                 Iniciar sesión
@@ -118,8 +145,9 @@ export default function Navbar() {
                   <Badge count={l.badge} />
                 </Link>
               ))}
+              <ThemeSwitcher />
               <button onClick={handleLogout}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-[#F5F0E8]/20 hover:text-red-400 hover:bg-red-500/[0.06] transition-colors ml-2">
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-[#F5F0E8]/20 hover:text-red-400 hover:bg-red-500/[0.06] transition-colors ml-1">
                 <IcoLogout />Salir
               </button>
             </>
@@ -135,8 +163,9 @@ export default function Navbar() {
                   {l.icon}{l.label}
                 </Link>
               ))}
+              <ThemeSwitcher />
               <button onClick={handleLogout}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-[#F5F0E8]/20 hover:text-red-400 hover:bg-red-500/[0.06] transition-colors ml-2">
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-[#F5F0E8]/20 hover:text-red-400 hover:bg-red-500/[0.06] transition-colors ml-1">
                 <IcoLogout />Salir
               </button>
             </>
@@ -197,6 +226,11 @@ export default function Navbar() {
               </button>
             </>
           )}
+          {/* Theme switcher row */}
+          <div className="flex items-center gap-2 px-4 py-3 border-t border-white/[0.04] mt-1">
+            <span className="text-[10px] text-[#F5F0E8]/25 uppercase tracking-widest font-bold flex-1">Tema</span>
+            <ThemeSwitcher />
+          </div>
         </div>
       </div>
     </nav>
