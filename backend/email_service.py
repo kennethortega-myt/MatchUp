@@ -32,8 +32,12 @@ def _brevo_send(to_email: str, subject: str, html: str) -> None:
         },
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=10) as resp:
-        print(f"[EMAIL] Brevo status: {resp.status}")
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            print(f"[EMAIL] Brevo status: {resp.status}")
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        raise Exception(f"HTTP {e.code}: {body}") from e
 
 
 async def send_reset_email(to_email: str, token: str) -> None:
