@@ -187,10 +187,10 @@ export default function BrowsePage() {
                     📍 {[w.city, w.country].filter(Boolean).join(', ')}
                   </p>
                 )}
-                {w.looking_for && (
-                  <div className={`inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${LOOKING_FOR_LABELS[w.looking_for].color}`}>
-                    <span>{LOOKING_FOR_LABELS[w.looking_for].emoji}</span>
-                    <span>{LOOKING_FOR_LABELS[w.looking_for].label}</span>
+                {w.looking_for && LOOKING_FOR_LABELS[w.looking_for as LookingFor] && (
+                  <div className={`inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${LOOKING_FOR_LABELS[w.looking_for as LookingFor].color}`}>
+                    <span>{LOOKING_FOR_LABELS[w.looking_for as LookingFor].emoji}</span>
+                    <span>{LOOKING_FOR_LABELS[w.looking_for as LookingFor].label}</span>
                   </div>
                 )}
               </div>
