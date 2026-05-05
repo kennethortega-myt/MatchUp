@@ -1,31 +1,53 @@
 import os
 import secrets
-
-import resend
+import urllib.request
+import urllib.error
+import json
 
 REQUIRE_VERIFICATION = os.getenv("REQUIRE_EMAIL_VERIFICATION", "false").lower() == "true"
-RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
-MAIL_FROM      = os.getenv("MAIL_FROM", "MatchUp <onboarding@resend.dev>")
-FRONTEND_URL   = os.getenv("FRONTEND_URL", "http://localhost:5173")
+BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
+MAIL_FROM     = os.getenv("MAIL_FROM", "ken.tauro.tauro@gmail.com")
+MAIL_FROM_NAME = os.getenv("MAIL_FROM_NAME", "MatchUp")
+FRONTEND_URL  = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 
 def generate_token() -> str:
     return secrets.token_urlsafe(32)
 
 
+def _send_brevo(to_email: str, subject: str, html: str) -> None:
+    payload = json.dumps({
+        "sender": {"name": MAIL_FROM_NAME, "email": MAIL_FROM},
+        "to": [{"email": to_email}],
+        "subject": subject,
+        "htmlContent": html,
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        "https://api.brevo.com/v3/smtp/email",
+        data=payload,
+        headers={
+            "accept": "application/json",
+            "api-key": BREVO_API_KEY,
+            "content-type": "application/json",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req) as resp:
+        print(f"[EMAIL] Brevo response: {resp.status}")
+
+
 async def send_reset_email(to_email: str, token: str) -> None:
-    if not RESEND_API_KEY:
+    if not BREVO_API_KEY:
         print(f"[DEV] Password reset link for {to_email}: {FRONTEND_URL}/reset-password?token={token}")
         return
 
-    resend.api_key = RESEND_API_KEY
     link = f"{FRONTEND_URL}/reset-password?token={token}"
     try:
-        resend.Emails.send({
-            "from": MAIL_FROM,
-            "to": [to_email],
-            "subject": "Restablecer contraseña en MatchUp",
-            "html": f"""
+        _send_brevo(
+            to_email=to_email,
+            subject="Restablecer contraseña en MatchUp",
+            html=f"""
             <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#fff">
               <h2 style="color:#ec4899;margin-bottom:8px">Restablecer contraseña</h2>
               <p style="color:#555;margin-bottom:24px">
@@ -41,7 +63,7 @@ async def send_reset_email(to_email: str, token: str) -> None:
               </p>
             </div>
             """,
-        })
+        )
         print(f"[EMAIL] Reset email sent to {to_email}")
     except Exception as e:
         print(f"[EMAIL ERROR] Failed to send reset email to {to_email}: {e}")
@@ -49,18 +71,16 @@ async def send_reset_email(to_email: str, token: str) -> None:
 
 
 async def send_verification_email(to_email: str, token: str) -> None:
-    if not RESEND_API_KEY:
+    if not BREVO_API_KEY:
         print(f"[DEV] Verification link for {to_email}: {FRONTEND_URL}/verify-email?token={token}")
         return
 
-    resend.api_key = RESEND_API_KEY
     link = f"{FRONTEND_URL}/verify-email?token={token}"
     try:
-        resend.Emails.send({
-            "from": MAIL_FROM,
-            "to": [to_email],
-            "subject": "Verifica tu cuenta en MatchUp",
-            "html": f"""
+        _send_brevo(
+            to_email=to_email,
+            subject="Verifica tu cuenta en MatchUp",
+            html=f"""
             <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#fff">
               <h2 style="color:#ec4899;margin-bottom:8px">¡Bienvenido a MatchUp!</h2>
               <p style="color:#555;margin-bottom:24px">
@@ -77,7 +97,7 @@ async def send_verification_email(to_email: str, token: str) -> None:
               </p>
             </div>
             """,
-        })
+        )
         print(f"[EMAIL] Verification email sent to {to_email}")
     except Exception as e:
         print(f"[EMAIL ERROR] Failed to send verification email to {to_email}: {e}")

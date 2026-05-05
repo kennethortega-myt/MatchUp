@@ -13,6 +13,7 @@ boto3==1.35.99
 slowapi==0.1.9
 fastapi-mail==1.4.1
 resend==2.10.0
+sib-api-v3-sdk==7.6.0
 cryptography==44.0.2
 pyotp==2.9.0
 google-auth==2.38.0
