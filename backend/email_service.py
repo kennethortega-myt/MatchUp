@@ -1,5 +1,8 @@
+import logging
 import os
 import secrets
+
+logger = logging.getLogger(__name__)
 
 REQUIRE_VERIFICATION = os.getenv("REQUIRE_EMAIL_VERIFICATION", "false").lower() == "true"
 MAIL_USERNAME = os.getenv("MAIL_USERNAME", "")
@@ -56,7 +59,12 @@ async def send_reset_email(to_email: str, token: str) -> None:
         subtype=MessageType.html,
     )
     fm = FastMail(conf)
-    await fm.send_message(message)
+    try:
+        await fm.send_message(message)
+        logger.info(f"Reset email sent to {to_email}")
+    except Exception as e:
+        logger.error(f"Failed to send reset email to {to_email}: {e}")
+        raise
 
 
 async def send_verification_email(to_email: str, token: str) -> None:
@@ -102,4 +110,9 @@ async def send_verification_email(to_email: str, token: str) -> None:
         subtype=MessageType.html,
     )
     fm = FastMail(conf)
-    await fm.send_message(message)
+    try:
+        await fm.send_message(message)
+        logger.info(f"Verification email sent to {to_email}")
+    except Exception as e:
+        logger.error(f"Failed to send verification email to {to_email}: {e}")
+        raise
