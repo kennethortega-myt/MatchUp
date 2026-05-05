@@ -68,6 +68,7 @@ async def send_reset_email(to_email: str, token: str) -> None:
 
 
 async def send_verification_email(to_email: str, token: str) -> None:
+    print(f"[EMAIL] send_verification_email called for {to_email}, MAIL_USERNAME set: {bool(MAIL_USERNAME)}")
     if not MAIL_USERNAME:
         print(f"[DEV] Verification link for {to_email}: {FRONTEND_URL}/verify-email?token={token}")
         return
@@ -112,7 +113,7 @@ async def send_verification_email(to_email: str, token: str) -> None:
     fm = FastMail(conf)
     try:
         await fm.send_message(message)
-        logger.info(f"Verification email sent to {to_email}")
+        print(f"[EMAIL] Verification email sent successfully to {to_email}")
     except Exception as e:
-        logger.error(f"Failed to send verification email to {to_email}: {e}")
+        print(f"[EMAIL ERROR] Failed to send verification email to {to_email}: {e}")
         raise
