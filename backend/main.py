@@ -88,7 +88,7 @@ app.include_router(withdrawals.router)
 async def startup_check():
     from backend.email_service import REQUIRE_VERIFICATION, BREVO_API_KEY, FRONTEND_URL
     print(f"[STARTUP] REQUIRE_EMAIL_VERIFICATION={REQUIRE_VERIFICATION}")
-    print(f"[STARTUP] BREVO_API_KEY={'set' if BREVO_API_KEY else 'EMPTY'}")
+    print(f"[STARTUP] BREVO_API_KEY={BREVO_API_KEY[:12]}...{BREVO_API_KEY[-6:] if BREVO_API_KEY else ''}")
     print(f"[STARTUP] FRONTEND_URL={FRONTEND_URL}")
 
 
