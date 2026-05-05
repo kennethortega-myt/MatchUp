@@ -36,6 +36,10 @@ def send_request(
     current_user: User = Depends(require_subscription),
     db: Session = Depends(get_db),
 ):
+    man_has_photo = db.query(Photo).filter(Photo.user_id == current_user.id).first()
+    if not man_has_photo:
+        raise HTTPException(status_code=400, detail="Debes subir al menos una foto antes de enviar solicitudes")
+
     woman = db.query(User).filter(User.id == woman_user_id, User.role == "woman").first()
     if not woman:
         raise HTTPException(status_code=404, detail="Woman not found")
@@ -240,6 +244,8 @@ def accepted_matches(current_user: User = Depends(require_man), db: Session = De
             occupation=profile.occupation,
             phone=profile.phone,
             instagram=profile.instagram,
+            telegram=profile.telegram,
+            tiktok=profile.tiktok,
             looking_for=profile.looking_for,
             photos=[to_photo_out(p) for p in photos],
         ))

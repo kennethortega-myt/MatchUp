@@ -28,7 +28,8 @@ def browse_women(
     db: Session = Depends(get_db),
 ):
     offset = (page - 1) * size
-    query = db.query(WomanProfile).filter(WomanProfile.is_complete == 1)
+    has_photo = db.query(Photo.user_id).filter(Photo.user_id == WomanProfile.user_id).exists()
+    query = db.query(WomanProfile).filter(WomanProfile.is_complete == 1, has_photo)
 
     if country:
         query = query.filter(WomanProfile.country.ilike(f"%{country}%"))
