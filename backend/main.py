@@ -84,6 +84,15 @@ app.include_router(men.router)
 app.include_router(withdrawals.router)
 
 
+@app.on_event("startup")
+async def startup_check():
+    from backend.email_service import REQUIRE_VERIFICATION, MAIL_USERNAME, MAIL_SERVER, MAIL_PORT, FRONTEND_URL
+    print(f"[STARTUP] REQUIRE_EMAIL_VERIFICATION={REQUIRE_VERIFICATION}")
+    print(f"[STARTUP] MAIL_USERNAME={'set' if MAIL_USERNAME else 'EMPTY'}")
+    print(f"[STARTUP] MAIL_SERVER={MAIL_SERVER} MAIL_PORT={MAIL_PORT}")
+    print(f"[STARTUP] FRONTEND_URL={FRONTEND_URL}")
+
+
 @app.get("/")
 def root():
     return {"app": "MatchUp API", "version": "1.0.0", "docs": "/docs"}
