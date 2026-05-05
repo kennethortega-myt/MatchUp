@@ -86,10 +86,9 @@ app.include_router(withdrawals.router)
 
 @app.on_event("startup")
 async def startup_check():
-    from backend.email_service import REQUIRE_VERIFICATION, MAIL_USERNAME, MAIL_SERVER, MAIL_PORT, FRONTEND_URL
+    from backend.email_service import REQUIRE_VERIFICATION, RESEND_API_KEY, FRONTEND_URL
     print(f"[STARTUP] REQUIRE_EMAIL_VERIFICATION={REQUIRE_VERIFICATION}")
-    print(f"[STARTUP] MAIL_USERNAME={'set' if MAIL_USERNAME else 'EMPTY'}")
-    print(f"[STARTUP] MAIL_SERVER={MAIL_SERVER} MAIL_PORT={MAIL_PORT}")
+    print(f"[STARTUP] RESEND_API_KEY={'set' if RESEND_API_KEY else 'EMPTY'}")
     print(f"[STARTUP] FRONTEND_URL={FRONTEND_URL}")
 
 
